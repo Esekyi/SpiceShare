@@ -23,9 +23,10 @@ def create_app():
 	login_manager.init_app(app)
 
 	# register blueprint
-	from app.routes import user_routes, recipe_routes
+	from app.routes import user_routes, recipe_routes, auth_routes
 	app.register_blueprint(user_routes.bp)
 	app.register_blueprint(recipe_routes.bp)
+	app.register_blueprint(auth_routes.auth_bp)
 
 
 	return app
