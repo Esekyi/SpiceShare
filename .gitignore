@@ -1,3 +1,29 @@
 .venv/
 __pycache__/
 .env
+notice.txt
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+# Temporary files
+*.bak
+*.tmp
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+
+# Operating system files
+Thumbs.db
