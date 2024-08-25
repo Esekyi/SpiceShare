@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
 from app.models.user import User
@@ -18,7 +18,7 @@ def login():
 
 		if user and check_password_hash(user.password_hash, password):
 			login_user(user)
-			return redirect(url_for('main.profile'))
+			return jsonify({"success": "you're logged in"})
 
 		flash('Invalid Credentials', 'warning')
 
@@ -31,9 +31,3 @@ def logout():
 	logout_user()
 	return redirect(url_for('auth.login'))
 
-@auth_bp.route('/register', methods=["GET", "POST"])
-def register():
-	if request.method == "POST":
-		pass
-
-	return render_template('index.html') # change to register html
