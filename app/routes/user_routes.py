@@ -1,7 +1,7 @@
 """User services routes"""
-from flask import Blueprint, jsonify, request, flash, redirect, url_for
+from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template
 from app import db
-from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user
+from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user, create_user, get_user_by_email
 from flask_login import login_required, current_user
 
 # user routes blueprint
@@ -11,7 +11,13 @@ bp = Blueprint('user_routes', __name__)
 def list_users():
     """get all users in db"""
     users = get_all_users()
-    return jsonify([user.username for user in users])
+    for user in users:
+        return jsonify({
+            "id": user.id,
+            "name": user.first_name + ' ' + user.last_name,
+            "email": user.email,
+            "password": user.password_hash
+        })
 
 
 @bp.route('/user/<uuid:user_id>', methods=["GET"])
@@ -23,6 +29,37 @@ def get_user(user_id):
         flash('User not found', 'danger')
         return redirect(url_for('main.index'))
     return jsonify({"username": user.username, "email": user.email})
+
+
+@bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        data = request.form
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        if not first_name or not last_name or not username or not email or not password:
+            flash('All fields are required', 'error')
+            return redirect(url_for('user_routes.register'))
+
+        existing_user = get_user_by_email(email)
+        if existing_user:
+            flash('Email already registered', 'error')
+            return redirect(url_for('user_routes.register'))
+
+        try:
+            create_user(first_name, last_name, password, email, username)
+            flash('Registration successful, proceed to login!', 'success')
+            return redirect(url_for('auth.login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occured during registeration. Please try again', 'error')
+            return redirect(url_for('user_routes.register'))
+
+    return render_template('register.html')
 
 
 @bp.route('/user/<uuid:user_id>/edit', methods=["POST"])
@@ -39,8 +76,15 @@ def edit_user(user_id):
         if any(u.email == new_email and u.id != user.id for u in all_users):
             flash('Email already in use', 'danger')
             return redirect(url_for('user_routes.get_user', user_id=user_id))
-        update_user(user, email=new_email,
-                    password_hash=data.get('password_hash'))
+
+        update_user(
+            user,
+            email=new_email,
+            password=data.get('password'),
+            first_name=data.get('first_name'),
+            last_name=data.get('last_name')
+        )
+
         flash('Profile updated successfully', 'success')
         return redirect(url_for('user_routes.get_user', user_id=user_id))
 
