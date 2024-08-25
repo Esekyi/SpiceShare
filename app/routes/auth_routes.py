@@ -36,4 +36,4 @@ def register():
 	if request.method == "POST":
 		pass
 
-	return render_template('register.html')
+	return render_template('index.html') # change to register html
