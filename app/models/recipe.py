@@ -9,7 +9,6 @@ class Recipe(db.Model):
                    default=uuid.uuid4)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    instructions = db.Column(db.Text, nullable=False)
     prep_time = db.Column(db.Integer)  # in minutes
     cook_time = db.Column(db.Integer)  # in minutes
     servings = db.Column(db.Integer)
@@ -25,6 +24,8 @@ class Recipe(db.Model):
     comments = db.relationship('Comment', backref='recipe', lazy=True)
     ingredients = db.relationship(
         'Ingredient', backref='recipe', lazy='dynamic')
+    instructions = db.relationship(
+        'Instruction', backref='recipes', lazy='dynamic')
 
     def __repr__(self):
         return f'<Recipe {self.title}>'
