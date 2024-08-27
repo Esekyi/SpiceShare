@@ -5,11 +5,15 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<title>{% block title %}
-		SpiceShare{% endblock %}
+	<title>
+		{% block title %}
+			{{title}} | SpiceShare
+		{% endblock %}
 	</title>
 
 	<link rel="stylesheet" href="{{url_for('static', filename='css/output.css')}}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/recipe_form.css') }}">
+
 	<style>
 		body {
 			display: flex;
@@ -62,6 +66,8 @@
 
 	{% block scripts %}
 	<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/recipe_form.js') }}"></script>
+
 	{% endblock %}
 </body>
 

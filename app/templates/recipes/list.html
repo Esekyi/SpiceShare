@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Recipes</h2>
+<div class="recipe-detail">
+	{% for recipe in recipes %}
+		<h2>
+			{{ recipe.title }} - <a href="{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}">View</a>
+		</h2>
+		{% if recipe.image_url %}
+			<img src="{{ recipe.image_url }}" alt="{{ recipe.title }} image" class="recipe-image">
+		{% endif %}
+		<div class="recipe-directions">
+			<h3>Directions</h3>
+			<ol>
+				{% for direction in recipe.instructions %}
+				<li>{{ direction.name }}</li>
+				{% endfor %}
+			</ol>
+		</div>
+		<!-- Other recipe details -->
+		
+		{% endfor %}
+
+</div>
+	
+{% endblock %}

@@ -22,7 +22,7 @@ def login():
 
 		flash('Invalid Credentials', 'warning')
 
-	return render_template('login.html')
+	return render_template('user_auth/login.html')
 
 @auth_bp.route('/logout')
 @login_required

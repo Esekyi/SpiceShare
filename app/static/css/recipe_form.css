@@ -1,0 +1,50 @@
+.directions-section {
+	margin-bottom: 20px;
+}
+
+.direction-row {
+	display: flex;
+	align-items: flex-start;
+	margin-bottom: 10px;
+}
+
+.direction-step-number {
+	width: 30px;
+	font-size: 1.5rem;
+	margin-right: 10px;
+}
+
+.direction-input {
+	flex: 1;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	resize: vertical;
+	min-height: 50px;
+}
+
+.remove-direction-btn {
+	background-color: #e74c3c;
+	color: white;
+	border: none;
+	padding: 8px 12px;
+	margin-left: 10px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.add-direction-btn {
+	background-color: #3498db;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.recipe-image {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	margin-bottom: 15px;
+}
