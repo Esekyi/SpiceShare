@@ -8,6 +8,7 @@ Sign Up - SpiceShare
 <div class="max-w-md mx-auto bg-white p-8 rounded shadow-md">
 	<h2 class="text-2xl font-semibold text-text mb-6">Create Account</h2>
 	<form action="{{ url_for('user_routes.register') }}" method="POST">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 		<div class="mb-4">
 			<label for="first_name" class="block text-sm font-medium text-text">First Name:</label>
 			<input type="text" id="first_name" name="first_name" class="mt-1 p-2 w-full border rounded" required

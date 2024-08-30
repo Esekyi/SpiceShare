@@ -7,33 +7,37 @@
 
 	<title>
 		{% block title %}
-			{{title}} | SpiceShare
+			{% if title%}
+			{{title}}
+			{% else %}
+			SpiceShare
+			{% endif %}
 		{% endblock %}
 	</title>
 
 	<link rel="stylesheet" href="{{url_for('static', filename='css/output.css')}}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/recipe_form.css') }}">
 
-	<style>
-		body {
-			display: flex;
-			flex-direction: column;
-			min-height: 100vh;
-		}
-	
-		main {
-			flex: 1 0 auto;
-		}
-	</style>
+		<style>
+			body {
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+			}
+		
+			main {
+				flex: 1 0 auto;
+			}
+		</style>
 </head>
 
 <body class="bg-background text-text font-sans">
 	<header class="bg-primary text-white py-4 shadow-md">
 		<div class="container mx-auto flex justify-between items-center">
-			<h1 class="text-3xl font-bold"><a href="{{ url_for('user_routes.list_users') }}">SpiceShare</a></h1>
+			<h1 class="text-3xl font-bold"><a href="{{ url_for('main.index') }}">SpiceShare</a></h1>
 			<nav>
-				<a href="{{ url_for('user_routes.list_users') }}" class="mr-6 hover:text-accent">Home</a>
-				<a href="{{ url_for('user_routes.list_users') }}" class="mr-6 hover:text-accent">Recipes</a>
+				<a href="{{ url_for('main.index') }}" class="mr-6 hover:text-accent">Home</a>
+				<a href="{{ url_for('recipe_routes.list_recipes') }}" class="mr-6 hover:text-accent">Recipes</a>
 				<a href="{{ url_for('user_routes.list_users') }}" class="hover:text-accent">Login</a>
 			</nav>
 		</div>

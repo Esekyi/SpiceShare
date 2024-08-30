@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SpiceShare - Share Your Taste, Explore New Flavors</title>
+	<!-- Tailwind CSS -->
+	<link rel="stylesheet" href="{{url_for('static', filename='css/output.css')}}">
+	<style>
+		.flash-message {
+			transition: opacity 0.5s ease-in-out;
+		}
+
+		/* Loader styling */
+		#loader {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(255, 255, 255, 0.8);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 9999;
+		}
+
+		.spinner {
+			border: 4px solid rgba(0, 0, 0, 0.1);
+			border-left-color: #000;
+			border-radius: 50%;
+			width: 50px;
+			height: 50px;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+	</style>
+</head>
+
+<body class="bg-gray-100 font-poppins">
+	<!-- Loader -->
+	<div id="loader">
+		<div class="spinner"></div>
+	</div>
+
+	<!-- Hero Section -->
+	<section class="relative h-screen bg-cover bg-center"
+		style="background-image: url('{{url_for('static', filename='images/hero_image1.jpg')}}');">
+		<div class="absolute inset-0 bg-black opacity-50"></div>
+		<div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
+			<h1 class="text-5xl font-bold mb-4">Welcome to SpiceShare</h1>
+			<p class="text-xl font-light">Discover and Share Your Favorite Recipes</p>
+			<p class="text-xl font-light mb-8">Share Your Taste, Explore New Flavors</p>
+			<a href="{{ url_for('recipe_routes.list_recipes')}}"
+				class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-lg transition duration-300">Explore
+				Recipes</a>
+		</div>
+		<div class="absolute bottom-0 right-0 text-white text-xs p-2 bg-black bg-opacity-50 rounded-tl-lg">
+			<p>Image by <a
+					href="https://www.freepik.com/free-photo/top-view-delicious-cooked-vegetables-sliced-with-greens-seasonings-dark-background-soup-meal-food-sauce_13870386.htm#fromView=search&page=1&position=10&uuid=0c6cc096-0b70-4d22-b8fc-2562039ab787"
+					class="underline text-blue-300" target="_blank" rel="noopener noreferrer">Freepik</a></p>
+		</div>
+	</section>
+
+	<!-- Most Popular Recipes Section -->
+	<section class="py-16 px-4 bg-white" id="popular-recipes">
+		<div class="container mx-auto text-center">
+			<h2 class="text-4xl font-bold text-gray-800 mb-8">Most Popular Recipes</h2>
+
+			<!-- Recipes Container -->
+			<div id="recipeCards" class="relative flex items-center justify-center">
+				<button id="prevButton" disabled
+					class="absolute left-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition duration-300">
+					&#8249;
+				</button>
+
+				<div id="recipeGrid"
+					class="grid grid-cols-1 md:grid-cols-3 gap-6 mx-16 transition-transform duration-500 transform">
+					<!-- Recipe cards will be dynamically inserted here -->
+				</div>
+
+				<button id="nextButton"
+					class="absolute right-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition duration-300">
+					&#8250;
+				</button>
+			</div>
+		</div>
+	</section>
+
+
+
+
+	<!-- Join Section -->
+	<section class="py-16 px-4 bg-blue-600 text-white" id="join">
+		<div class="container mx-auto text-center">
+			<h2 class="text-4xl font-bold mb-8">Ready to Join?</h2>
+			<p class="text-lg mb-8">Join SpiceShare and start sharing your favorite recipes with the world!</p>
+			<a href="{{ url_for('user_routes.register')}}"
+				class="px-8 py-4 bg-white hover:bg-gray-200 text-blue-600 rounded-lg text-lg transition duration-300">Join
+				Now</a>
+		</div>
+	</section>
+
+	<!-- Footer -->
+	<footer class="py-8 bg-gray-800 text-white text-center">
+		<p>&copy; 2024 SpiceShare. All rights reserved.</p>
+	</footer>
+
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	{% for category, message in messages %}
+	<div id="flashMessageBox"
+		class="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-4 w-96 bg-{{ category }} text-white text-center rounded-lg shadow-lg flash-message">
+		<p>{{ message }}</p>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% endwith %}
+
+	<!-- JavaScript for Auto-Disappear -->
+	<script>
+		// Function to hide the flash message after 3 seconds
+		setTimeout(function ()
+		{
+			const flashMessageBox = document.getElementById('flashMessageBox');
+			if (flashMessageBox)
+			{
+				flashMessageBox.style.opacity = '0'; // Fade out
+				setTimeout(function ()
+				{
+					flashMessageBox.remove(); // Remove from DOM after fade out
+				}, 500); // 0.5s to match the CSS transition duration
+			}
+		}, 5000); // Display for 3 seconds
+
+
+		let currentPage = 0;
+		let totalPages = 0;
+		const recipesPerPage = 3;
+
+		function fetchRecipes(page)
+		{
+			fetch(`/api/v1/recipes?page=${page}&per_page=${recipesPerPage}`)
+				.then(response => response.json())
+				.then(data =>
+				{
+					const recipeGrid = document.getElementById('recipeGrid');
+					totalPages = Math.ceil(data.recipes.length / recipesPerPage);
+
+					// Enable/Disable buttons based on current page
+					document.getElementById('prevButton').disabled = currentPage === 0;
+					document.getElementById('nextButton').disabled = currentPage >= totalPages - 1;
+					// Add animation to slide content
+					recipeGrid.style.opacity = 0;
+					setTimeout(() =>
+					{
+						recipeGrid.innerHTML = ''; // Clear existing recipes
+						const start = page * recipesPerPage;
+						const end = page + recipesPerPage
+						const visibleRecipes = data.recipes.slice(start, end);
+
+						visibleRecipes.forEach(recipes =>
+						{
+							const recipeCard = `
+					<div class="bg-white shadow-lg rounded-lg overflow-hidden transform transition-transform duration-500 hover:scale-105">
+                            <div class="h-40 bg-gray-200 flex items-center justify-center">
+                                ${recipes.image_url && recipes.image_url.trim() !== '' ? `
+                                <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/${recipes.image_url}" alt="${recipes.title}" class="w-full h-full object-cover">
+                                ` : `
+                                <span class="text-gray-500">No Image Available</span>
+                                `}
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">${recipes.title}</h3>
+                                <p class="text-gray-500 text-sm">${new Date(recipes.created_at).toLocaleDateString()} at ${new Date(recipes.created_at).toLocaleTimeString()}</p>
+                                <a href="#" class="text-blue-600 mt-2 inline-block">Read More</a>
+                            </div>
+                    </div>
+					`;
+							recipeGrid.innerHTML += recipeCard;
+						});
+						recipeGrid.style.opacity = 1;
+
+						const images = document.querySelectorAll('img');
+						let loadedImages = 0;
+
+						if (images.length === 0)
+						{
+							document.getElementById('loader').style.display = 'none'; // No images to load
+						}
+						
+						images.forEach((img) =>
+						{
+							img.onload = img.onerror = () =>
+							{ // Consider both load and error events
+								loadedImages++;
+								if (loadedImages === images.length)
+								{
+									document.getElementById('loader').style.display = 'none'; // All images have been loaded or errored out
+								}
+							};
+							// If the image is already loaded (from cache), trigger the load event manually
+							if (img.complete)
+							{
+								img.onload();
+							}
+						});
+					}, 500);
+
+				});
+
+		}
+
+		document.getElementById('prevButton').addEventListener('click', () =>
+		{
+			if (currentPage > 0)
+			{
+				currentPage--;
+				fetchRecipes(currentPage);
+			}
+		});
+
+		document.getElementById('nextButton').addEventListener('click', () =>
+		{
+			if (currentPage < totalPages - 1){
+				currentPage++;
+				fetchRecipes(currentPage);
+			}
+		});
+
+		// Initial fetch
+			window.addEventListener('load', () =>
+			{
+				fetchRecipes(currentPage);
+			});
+
+	</script>
+
+</body>
+
+</html>
