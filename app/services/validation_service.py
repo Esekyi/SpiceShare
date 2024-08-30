@@ -8,7 +8,7 @@ def validate_recipe_data(data):
 		errors.append('Title is required.')
 	if not data.get('description'):
 		errors.append('Description is required.')
-	if not data.get('instructions'):
+	if not data.get('instructions[]'):
 		errors.append('Instructions are required.')
 	if not data.get('category_id'):
 		errors.append('Category is required.')
