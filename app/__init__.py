@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
 from app.config import Config
 from flask_login import LoginManager
 from uuid import UUID
@@ -13,6 +14,7 @@ login_manager.login_view = 'auth.login'
 # initializing db extensions
 db = SQLAlchemy()
 migrate = Migrate()
+csrf = CSRFProtect()
 
 def create_app():
 	if not os.environ.get('FLASK_DEBUG'):
@@ -25,12 +27,16 @@ def create_app():
 	db.init_app(app)
 	migrate.init_app(app,db)
 	login_manager.init_app(app)
+	csrf.init_app(app)
 
 	# register blueprint
-	from app.routes import user_routes, recipe_routes, auth_routes
+	from app.routes import user_routes, recipe_routes, auth_routes, category_routes, main_routes, api
 	app.register_blueprint(user_routes.bp)
 	app.register_blueprint(recipe_routes.bp)
 	app.register_blueprint(auth_routes.auth_bp)
+	app.register_blueprint(category_routes.cat_bp, url_prefix='/api')
+	app.register_blueprint(main_routes.main)
+	app.register_blueprint(api.api, url_prefix='/api/v1')
 
 
 	return app
