@@ -9,10 +9,13 @@ class Recipe(db.Model):
                    default=uuid.uuid4)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    # default value in Fahrenheit  # in °F
+    oven_temp = db.Column(db.Integer, default=60)
     prep_time = db.Column(db.Integer)  # in minutes
     cook_time = db.Column(db.Integer)  # in minutes
     servings = db.Column(db.Integer)
     image_url = db.Column(db.String(255))
+    view_count = db.Column(db.Integer, default=0)
     category_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
         'category.id'), nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
