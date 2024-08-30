@@ -11,6 +11,10 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET','POST'])
 def login():
 	"""Login authentication handler"""
+	# Check if the user is already authenticated
+	if current_user.is_authenticated:
+		return redirect(url_for('user_routes.user_profile', user_id=current_user.id))
+
 	if request.method == 'POST':
 		email = request.form["email"]
 		password = request.form["password"]
@@ -18,7 +22,12 @@ def login():
 
 		if user and check_password_hash(user.password_hash, password):
 			login_user(user)
-			return jsonify({"success": "you're logged in"})
+			next_page = request.args.get('next')
+			if next_page:
+				return redirect(next_page)
+			else:
+				flash('logged in', 'success')
+				return redirect(url_for('main.index'))
 
 		flash('Invalid Credentials', 'warning')
 
@@ -29,5 +38,6 @@ def login():
 def logout():
 	"""logout handler"""
 	logout_user()
+	flash("You've been logged out succesfully!",'success')
 	return redirect(url_for('auth.login'))
 

@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template
 from app import db
 from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user, create_user, get_user_by_email
+from app.models.recipe import Recipe
 from flask_login import login_required, current_user
 
 # user routes blueprint
@@ -106,3 +107,16 @@ def delete_user_profile(user_id):
     else:
         flash('You are not authorized to delete this profile.', 'danger')
         return redirect(url_for('main.index'))
+    
+
+@bp.route('/user/<uuid:user_id>/profile', methods=['GET'])
+@login_required
+def user_profile(user_id):
+    user = get_user_by_id(user_id)
+
+    if user != current_user:
+        flash("You are not authorized to view page", 'danger')
+        return redirect(url_for('index'))
+    
+    recipes = Recipe.query.filter_by(user_id=user.id).all()
+    return render_template('user_auth/user_profile.html',recipes=recipes, user=user)
