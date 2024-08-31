@@ -1,14 +1,16 @@
 """User services routes"""
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template
 from app import db
-from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user, create_user, get_user_by_email
+from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user_details, create_user, get_user_by_email, get_user_by_username, is_valid_username
 from app.models.recipe import Recipe
 from flask_login import login_required, current_user
+from werkzeug.security import check_password_hash
 
 # user routes blueprint
 bp = Blueprint('user_routes', __name__)
 
 @bp.route('/users', methods=['GET'], strict_slashes=False)
+@login_required
 def list_users():
     """get all users in db"""
     users = get_all_users()
@@ -20,17 +22,6 @@ def list_users():
             "email": user.email
         })
     return jsonify(user_list)
-
-
-@bp.route('/user/<uuid:user_id>', methods=["GET"], strict_slashes=False)
-@login_required
-def get_user(user_id):
-    """get a specific user by id"""
-    user = get_user_by_id(str(user_id))
-    if not user:
-        flash('User not found', 'danger')
-        return redirect(url_for('main.index'))
-    return jsonify({"username": user.username, "email": user.email})
 
 
 @bp.route('/register', methods=['GET', 'POST'], strict_slashes=False)
@@ -48,51 +39,66 @@ def register():
             return redirect(url_for('user_routes.register'))
 
         existing_user = get_user_by_email(email)
+        existing_username = get_user_by_username(username)
         if existing_user:
             flash('Email already registered', 'error')
             return redirect(url_for('user_routes.register'))
 
+        if existing_username:
+            flash("Username already exists.", 'error')
+            return redirect(url_for('user_routes.register'))
+
+        if not is_valid_username(username):
+            flash(
+                'Username should be at least 6 characters long must contain only letters, numbers, and underscores, with no spaces.', 
+                'error')
+            return redirect(url_for('user_routes.register'))
+
         try:
-            create_user(first_name, last_name, password, email, username)
-            flash('Registration successful, proceed to login!', 'success')
+            create_user(first_name, last_name, username, email, password)
+            flash('Registration successful, proceed to login!', 'info')
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()
             flash('An error occured during registeration. Please try again', 'error')
             return redirect(url_for('user_routes.register'))
 
+    if current_user.is_authenticated:
+        return redirect(url_for('user_routes.user_profile', user_id=current_user.id))
     return render_template('user_auth/register.html')
 
 
 @bp.route('/user/<uuid:user_id>/edit', methods=["POST"], strict_slashes=False)
 @login_required
 def edit_user(user_id):
-    """Update user details by id"""
+    """Update user details by id (only handles POST requests)"""
     user = get_user_by_id(str(user_id))
-    if user and user.id == current_user.id:
-        data = request.form
-        new_email = data.get('email')
 
-        # run a quick db check to see if email already exist
-        all_users = get_all_users()
-        if any(u.email == new_email and u.id != user.id for u in all_users):
-            flash('Email already in use', 'danger')
-            return redirect(url_for('user_routes.get_user', user_id=user_id))
+    if current_user.id != user.id:
+        print(current_user.id)
+        flash('You are not authorized to edit this profile', 'error')
+        return redirect(url_for('user_routes.user_profile', user_id=current_user.id))
 
-        update_user(
-            user,
-            email=new_email,
-            password=data.get('password'),
-            first_name=data.get('first_name'),
-            last_name=data.get('last_name')
-        )
+    if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
 
-        flash('Profile updated successfully', 'success')
-        return redirect(url_for('user_routes.get_user', user_id=user_id))
-
+    if check_password_hash(user.password_hash, old_password):
+        if new_password == confirm_password:
+            update_user_details(user.id, first_name, last_name, new_password)
+            flash('Profile updated successfully', 'success')
+        else:
+            flash('New Password and confirm password do not match', 'error')
     else:
-        flash('You are not authorized to edit this profile.', 'danger')
-        return redirect(url_for('main.index'))
+        flash('Old password is incorrect', 'error')
+
+    return redirect(url_for('user_routes.user_profile', user_id=user_id))
+
+
+
 
 
 @bp.route('/user/<uuid:user_id>/delete', methods=['POST'], strict_slashes=False)
@@ -109,7 +115,7 @@ def delete_user_profile(user_id):
         return redirect(url_for('main.index'))
     
 
-@bp.route('/user/<uuid:user_id>/profile', methods=['GET'])
+@bp.route('/user/<uuid:user_id>/profile', methods=['GET'], strict_slashes=False)
 @login_required
 def user_profile(user_id):
     user = get_user_by_id(user_id)
