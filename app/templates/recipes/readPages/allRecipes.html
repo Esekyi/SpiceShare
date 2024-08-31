@@ -1,0 +1,77 @@
+{% extends "recipes/readPages/read_layout.html" %}
+{% block content %}
+<div class="flex justify-between items-center">
+	<h1 class="text-3xl font-bold">Recipes</h1>
+	<button type="button" class="bg-blue-600 text-white py-2 px-4 rounded"
+		onclick="window.location.href='{{ url_for('recipe_routes.add_recipe') }}';">+ Add Recipe</button>
+</div>
+<div class="mt-6">
+	<input type="text" placeholder="Search by recipe name, category, ingredients..."
+		class="w-full border border-gray-300 rounded-lg py-2 px-4 mb-6">
+</div>
+<div class="grid grid-cols-3 gap-6">
+	<!-- Repeat this block for each recipe card -->
+	{% for recipe in recipes %}
+	<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+		<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
+			{% if recipe.image_url %}
+			<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}"
+				alt="{{recipe.title}}" class="w-full h-full object-cover">
+			{% else %}
+			<span class="text-gray-500">No Image Available</span> <!-- Optional text for no image -->
+			{% endif %}
+		</div>
+		<div class="p-4">
+			<h3 class="text-lg font-bold">{{recipe.title}}</h3>
+			<p class="text-gray-600">Tasty enchilada recipe</p>
+			<p class="text-gray-500">Created by: {{ recipe.user.username }}</p>
+			<a href="{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}" class="text-blue-600 mt-2 inline-block">Read More</a>
+		</div>
+	</div>
+	{% endfor %}
+	<!-- Additional recipe cards -->
+</div>
+
+<section class="mt-12">
+	<h2 class="text-2xl font-bold">Most Recent</h2>
+	<div class="flex space-x-4 mt-4 overflow-x-auto">
+		<!-- Repeat this block for each recent recipe -->
+		<div class="bg-white shadow-lg rounded-lg overflow-hidden w-64">
+			<img src="recent1.jpg" alt="Spinach Skillet" class="w-full h-40 object-cover">
+			<div class="p-4">
+				<h3 class="text-lg font-bold">Spinach Skillet</h3>
+				<p class="text-gray-600">Quick and easy comfort food</p>
+				<a href="#" class="text-blue-600 mt-2 inline-block">Read More</a>
+			</div>
+		</div>
+		<!-- Additional recent recipe cards -->
+	</div>
+</section>
+
+<section class="mt-12">
+	<h2 class="text-2xl font-bold">Most Viewed</h2>
+	<div class="flex space-x-4 mt-4 overflow-x-auto">
+		<!-- Repeat this block for each viewed recipe -->
+		<div class="bg-white shadow-lg rounded-lg overflow-hidden w-64">
+			<img src="viewed1.jpg" alt="Savory Porridge" class="w-full h-40 object-cover">
+			<div class="p-4">
+				<h3 class="text-lg font-bold">Savory Porridge</h3>
+				<p class="text-gray-600">Aunt Mary's recipe</p>
+				<a href="#" class="text-blue-600 mt-2 inline-block">Read More</a>
+			</div>
+		</div>
+		<!-- Additional viewed recipe cards -->
+	</div>
+</section>
+
+<div class="pagination">
+    {% if current_page > 1 %}
+        <a href="?page={{ current_page - 1 }}&per_page={{ per_page }}">Previous</a>
+    {% endif %}
+    <span>Page {{ current_page }} of {{ total_pages }}</span>
+    {% if current_page < total_pages %}
+        <a href="?page={{ current_page + 1 }}&per_page={{ per_page }}">Next</a>
+    {% endif %}
+</div>
+
+{% endblock %}

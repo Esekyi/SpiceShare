@@ -2,25 +2,27 @@
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template
 from app import db
 from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user, create_user, get_user_by_email
+from app.models.recipe import Recipe
 from flask_login import login_required, current_user
 
 # user routes blueprint
 bp = Blueprint('user_routes', __name__)
 
-@bp.route('/users', methods=['GET'])
+@bp.route('/users', methods=['GET'], strict_slashes=False)
 def list_users():
     """get all users in db"""
     users = get_all_users()
+    user_list = []
     for user in users:
-        return jsonify({
+        user_list.append({
             "id": user.id,
             "name": user.first_name + ' ' + user.last_name,
-            "email": user.email,
-            "password": user.password_hash
+            "email": user.email
         })
+    return jsonify(user_list)
 
 
-@bp.route('/user/<uuid:user_id>', methods=["GET"])
+@bp.route('/user/<uuid:user_id>', methods=["GET"], strict_slashes=False)
 @login_required
 def get_user(user_id):
     """get a specific user by id"""
@@ -31,7 +33,7 @@ def get_user(user_id):
     return jsonify({"username": user.username, "email": user.email})
 
 
-@bp.route('/register', methods=['GET', 'POST'])
+@bp.route('/register', methods=['GET', 'POST'], strict_slashes=False)
 def register():
     if request.method == 'POST':
         data = request.form
@@ -59,10 +61,10 @@ def register():
             flash('An error occured during registeration. Please try again', 'error')
             return redirect(url_for('user_routes.register'))
 
-    return render_template('register.html')
+    return render_template('user_auth/register.html')
 
 
-@bp.route('/user/<uuid:user_id>/edit', methods=["POST"])
+@bp.route('/user/<uuid:user_id>/edit', methods=["POST"], strict_slashes=False)
 @login_required
 def edit_user(user_id):
     """Update user details by id"""
@@ -93,7 +95,7 @@ def edit_user(user_id):
         return redirect(url_for('main.index'))
 
 
-@bp.route('/user/<uuid:user_id>/delete', methods=['POST'])
+@bp.route('/user/<uuid:user_id>/delete', methods=['POST'], strict_slashes=False)
 @login_required
 def delete_user_profile(user_id):
 
@@ -105,3 +107,16 @@ def delete_user_profile(user_id):
     else:
         flash('You are not authorized to delete this profile.', 'danger')
         return redirect(url_for('main.index'))
+    
+
+@bp.route('/user/<uuid:user_id>/profile', methods=['GET'])
+@login_required
+def user_profile(user_id):
+    user = get_user_by_id(user_id)
+
+    if user != current_user:
+        flash("You are not authorized to view page", 'danger')
+        return redirect(url_for('index'))
+    
+    recipes = Recipe.query.filter_by(user_id=user.id).all()
+    return render_template('user_auth/user_profile.html',recipes=recipes, user=user)

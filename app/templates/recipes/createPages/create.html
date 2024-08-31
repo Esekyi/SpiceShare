@@ -1,0 +1,118 @@
+{% extends "recipes/createPages/create_layout.html" %}
+
+{% block content %}
+<form action="{{ url_for('recipe_routes.add_recipe') }}" method="POST" id="recipe-form" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+	<h1 class="text-2xl font-semibold text-gray-800 mb-6">Add Your Favorite Recipe</h1>
+	<div class="mb-6">
+		<label for="image-input" class="block text-gray-700">Picture</label>
+		<div class="image-container">
+			<img id="image-preview" class="image-preview" alt="Image Preview">
+			<div class="button-container">
+				<button id="add-photo-btn" type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+					+ Add a Photo
+				</button>
+			</div>
+			<input type="file" id="image-input" name="image" accept="image/*" style="display: none;" aria-label="Select an image">
+		</div>
+	</div>
+
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+		<div>
+			<label class="block text-gray-700">Title</label>
+			<input name="title" type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="Sweet Potato Enchiladas">
+		</div>
+		<div>
+			<label class="block text-gray-700">Description</label>
+			<input name="description" type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="Tasty enchilada recipe">
+		</div>
+		<div>
+			<label class="block text-gray-700">Oven Temp</label>
+			<div class="input-group">
+				<input name="oven_temp"  type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="60">
+				<span>°F</span>
+			</div>
+		</div>
+		<div>
+			<label class="block text-gray-700">Category</label>
+			<input type="text" id="categoryInput" class="w-full p-2 border border-gray-300 rounded"
+				placeholder="Select a category" readonly onclick="toggleDropdown()">
+				<input type="hidden" id="categoryIdInput" name="category_id">
+			<div id="dropdownMenu" class="dropdown-menu mt-2 border border-gray-300 rounded">
+				{% if categories %}
+					{% for category in categories %}
+						<div class="dropdown-item" onclick="selectCategory('{{ category.name }}','{{ category.id }}')" value="{{ category.id }}">
+							{{category.name}}
+						</div>
+					{% endfor %}
+				{% else %}
+						<div class="dropdown-item">No Categories available</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+		
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-3 mt-6">
+			<div>
+				<label class="block text-gray-700">Prep Time</label>
+				<div class="input-group">
+					<input name="prep_time" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="30">
+					<span>min</span>
+				</div>
+			</div>
+			<div>
+				<label class="block text-gray-700">Cook Time</label>
+				<div class="input-group">
+					<input name="cook_time" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="25">
+					<span>min</span>
+				</div>
+			</div>
+			<div>
+				<label class="block text-gray-700">Yield</label>
+				<div class="input-group">
+					<input name="servings" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="5">
+					<span>servings</span>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Ingredients Section -->
+		<div class="mt-6">
+			<h2 class="text-xl font-semibold text-gray-800">Ingredients</h2>
+			<div id="ingredients-list">
+				<div class="recipe-card">
+					<div class="input-group ingredient-card">
+						<input type="text" name="ingredients[]" class="w-full p-2 border border-gray-300 rounded"
+							placeholder="1 tablespoon of salt">
+						<button type="button" class="text-red-500 hover:text-red-700" onclick="removeIngredient(this)">×</button>
+					</div>
+				</div>
+			</div>
+			<button type="button" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700" onclick="addIngredient()">+
+				Add Ingredient</button>
+		</div>
+		<!-- Directions Section -->
+		<div class="mt-6">
+			<h2 class="text-xl font-semibold text-gray-800">Instructions</h2>
+			<div id="directions-list">
+					<div class="recipe-card">
+						<div class="input-group direction-card">
+							<input type="text" name="instructions[]" class="w-full p-2 border border-gray-300 rounded"
+								placeholder="Preheat the oven to 350°F." required>
+							<button type="button" class="text-red-500 hover:text-red-700" onclick="removeDirection(this)">×</button>
+						</div>
+					</div>
+		</div>
+		<button type="button" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700" onclick="addDirection()">+
+			Add Direction</button>
+		</div>
+		
+		<!-- Buttons -->
+		<div class="mt-8 flex justify-between">
+			<button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit</button>
+			<button type="button" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">Cancel</button>
+		</div>
+</form>
+{% endblock %}
+

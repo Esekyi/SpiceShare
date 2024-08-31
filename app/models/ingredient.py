@@ -8,7 +8,6 @@ class Ingredient(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True,
                    default=uuid.uuid4)
     name = db.Column(db.String(120), nullable=False)
-    quantity = db.Column(db.String(50), nullable=False)
     recipe_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
         'recipe.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

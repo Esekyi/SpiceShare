@@ -7,6 +7,6 @@ document.addEventListener('DOMContentLoaded', function ()
 		setTimeout(function ()
 		{
 			flash.style.display = 'none';
-		}, 3000); // Flash message disappears after 3 seconds
+		}, 5000); // Flash message disappears after 5 seconds
 	});
 });
