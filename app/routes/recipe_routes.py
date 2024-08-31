@@ -96,7 +96,8 @@ def edit_recipe(recipe_id):
 def remove_recipe(recipe_id):
     pass
 
-@bp.route('/most_viewed', methods=['GET'])
+
+@bp.route('/most_viewed', methods=['GET'], strict_slashes=False)
 def most_viewed():
     recipes = get_most_viewed_recipes(limit=5) # adjust with preferred limit default 5
     return recipes

@@ -20,8 +20,9 @@ def recipes():
 	per_page = int(request.args.get('per_page', 3))
 	try:
 		paginated_recipes = get_all_recipes(page, per_page)
+		serialized_recipes = [serialize_recipe(recipe) for recipe in paginated_recipes['items']]
 		return jsonify({
-			'recipes': paginated_recipes['items'],
+			'recipes': serialized_recipes,
 			'total_items': paginated_recipes['total_items'],
 			'total_pages': paginated_recipes['total_pages'],
 			'current_page': paginated_recipes['current_page']

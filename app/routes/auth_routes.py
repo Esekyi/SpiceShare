@@ -8,7 +8,8 @@ from app import db
 
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/login', methods=['GET','POST'])
+
+@auth_bp.route('/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
 	"""Login authentication handler"""
 	# Check if the user is already authenticated
