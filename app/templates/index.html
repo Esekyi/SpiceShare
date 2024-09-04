@@ -41,6 +41,12 @@
 			}
 		}
 	</style>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+	<link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+	
 </head>
 
 <body class="bg-gray-100 font-poppins">
@@ -169,13 +175,13 @@
                                 ${recipe.image_url && recipe.image_url.trim() !== '' ? `
                                 <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/${recipe.image_url}" alt="${recipe.title}" class="w-full h-full object-cover">
                                 ` : `
-                                <span class="text-gray-500">No Image Available</span>
+                                <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/no-image.png" alt="${recipe.title}" class="w-full h-full object-cover">
                                 `}
                             </div>
                             <div class="p-4">
                                 <h3 class="text-lg font-bold text-gray-800 mb-2">${recipe.title}</h3>
                                 <p class="text-gray-500 text-sm">${new Date(recipe.created_at).toLocaleDateString()} at ${new Date(recipe.created_at).toLocaleTimeString()}</p>
-                                <a href="#" class="text-blue-600 mt-2 inline-block">Read More</a>
+                                <a href="/recipes/${recipe.id}" class="text-blue-600 mt-2 inline-block">Read More</a>
                             </div>
                     </div>
 					`;

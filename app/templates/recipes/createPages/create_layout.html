@@ -13,9 +13,16 @@
 	</title>
 
 	<link rel="stylesheet" href="{{url_for('static', filename='css/output.css')}}">
+	<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/recipe_form.css') }}">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+	<link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 	<!-- Include SortableJS for drag-and-drop functionality -->
-	<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -57,9 +64,9 @@
 
 	</div>
 	<!-- Footer -->
-	<footer class="bg-gray-100 py-6 mt-10">
+	<footer class="bg-blue-100 py-6 mt-10">
 		<div class="max-w-6xl mx-auto text-center">
-			<p class="mb-4">Made with ❤️ by Esekyi</p>
+			<p class="mb-4 text-blue-600">Made with ❤️ by Esekyi</p>
 			<a href="">
 				<p class="text-sm text-gray-600 mt-4">About</p>
 			</a>
