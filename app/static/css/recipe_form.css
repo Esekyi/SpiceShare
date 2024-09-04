@@ -1,3 +1,9 @@
+.navbar-brand {
+	font-family: 'Raleway', sans-serif;
+	font-weight: 800;
+}
+
+
 .input-group {
 	display: flex;
 	align-items: center;
@@ -71,4 +77,9 @@
 	position: absolute;
 	bottom: 1rem;
 	right: 1rem;
+}
+/* Add this to your CSS file */
+.bg-yellow-100 {
+	background-color: #fefcbf;
+	/* Light yellow color */
 }
