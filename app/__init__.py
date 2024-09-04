@@ -10,6 +10,8 @@ from build import build_css
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
+login_manager.login_message = 'You Must Login to Access This Page!'
+login_manager.login_message_category = 'error'
 
 # initializing db extensions
 db = SQLAlchemy()
