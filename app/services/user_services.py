@@ -1,7 +1,6 @@
 from app.models.user import User
 from app import db
 from werkzeug.security import generate_password_hash
-
 def get_all_users():
 	return User.query.all()
 
@@ -12,6 +11,9 @@ def get_user_by_id(user_id):
 
 def get_user_by_email(email):
     return User.query.filter_by(email=email).first()
+
+def get_user_by_username(username):
+    return User.query.filter_by(username=username).first()
 
 
 def create_user(first_name, last_name, username, email, password):
@@ -28,19 +30,22 @@ def create_user(first_name, last_name, username, email, password):
     return new_user
 
 
-def update_user(user, email=None, password=None, first_name=None, last_name=None):
-    if email:
-        user.email = email
-    if password:
-        password_hash = generate_password_hash(password)
-        user.password_hash = password_hash
-    if first_name:
+def update_user_details(user_id, first_name, last_name, new_password=None):
+    """Update user's profile information."""
+    user = get_user_by_id(user_id)
+    if user:
         user.first_name = first_name
-    if last_name:
         user.last_name = last_name
-    db.session.commit()
+        if new_password:
+            user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+    return user
 
 
 def delete_user(user):
     db.session.delete(user)
     db.session.commit()
+
+def is_valid_username(username):
+    """Check if the username is valid: no spaces, only _, can include numbers, and must be at least 6 characters long."""
+    return len(username) >= 6 and (username.isalnum() or '_' in username)

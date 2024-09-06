@@ -1,0 +1,195 @@
+{% extends "recipes/readPages/read_layout.html" %}
+{% block content %}
+
+<body class="bg-white text-gray-900 font-sans">
+
+	<!-- Main Content -->
+	<main class="max-w-4xl mx-auto p-4">
+		<!-- Recipe Title -->
+		 {% if recipe %}
+		<section class="text-center mb-8">
+			<h1 class="text-3xl font-semibold mb-2 text-indigo-600">{{recipe.title}}</h1>
+			<p class="text-sm text-gray-500">
+				PUBLISHED: <span class="font-bold italic">{{ recipe.created_at.strftime('%d %b \'%y') if recipe.created_at else 'N/A' }}</span> &nbsp;
+				UPDATED: <span class="font-bold italic">{{ recipe.updated_at.strftime('%d %b \'%y') if recipe.updated_at else 'N/A' }}</span>
+			</p>
+			<p class="text-sm text-gray-500">By: {{recipe.user.username}}</p>
+		</section>
+
+		<!-- Image -->
+		 {% if recipe.image_url %}
+		<div class="relative mt-4">
+			<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{ recipe.title }}"
+				class="w-full h-[500px] object-cover rounded-lg mb-8">
+		{% else %}
+			<img src="{{url_for('static', filename='images/no-image-available.png') }}" alt="{{ recipe.title }}"
+				class="w-full h-[500px] object-cover rounded-lg mb-8">
+		{% endif %}
+			<div class="absolute top-2 right-2 space-x-2">
+				<button class="bg-white text-gray-700 px-3 py-1 rounded shadow hover:bg-gray-100" onclick="window.print()">Print</button>
+				<button class="bg-white text-gray-700 px-3 py-1 rounded shadow hover:bg-gray-100" onclick="copyToClipboard('{{ recipe.id }}')">Share</button>
+				{% if current_user.is_authenticated and current_user.id == recipe.user_id %}
+				<button class="bg-white text-gray-700 px-3 py-1 rounded shadow hover:bg-gray-100" onclick="window.location.href='{{ url_for('recipe_routes.edit_recipe', recipe_id=recipe.id) }}'">Edit</button>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Info Section -->
+		<section class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-8">
+			<div>
+				<p class="font-bold">Prep Time</p>
+				<p>{{recipe.prep_time}} min</p>
+			</div>
+			<div>
+				<p class="font-bold">Cook Time</p>
+				<p>{{recipe.cook_time}} min</p>
+			</div>
+			<div>
+				<p class="font-bold">Oven Temp</p>
+				<p>{{recipe.oven_temp}} °F</p>
+			</div>
+			<div>
+				<p class="font-bold">Yield</p>
+				<p>{{recipe.servings}} servings</p>
+			</div>
+		</section>
+		
+		<section>
+			<div>
+				<h2 class="text-2xl font-semibold mb-4 text-indigo-600">Description</h2>
+				<p class="mb-8">{{recipe.description}}</p>
+			</div>
+		</section>
+		{% endif %}
+
+		<!-- Ingredients and Directions Section -->
+		 {% if ingredients %}
+		<section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+			<!-- Ingredients -->
+			<div>
+				<h2 class="text-2xl font-semibold mb-4 text-indigo-600">Ingredients</h2>
+				<ul class="space-y-2 text-black-700">
+					{% for ingredient in ingredients %}
+						<li>{{ ingredient.name }}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
+
+			<!-- Directions -->
+			{% if instructions %}
+			<div>
+				<h2 class="text-2xl font-semibold mb-4 text-indigo-600">Instructions</h2>
+				<ol class="space-y-4 list-decimal list-inside text-black-700">
+					{% for instruction in instructions %}
+					<li>{{ instruction.name }}</li>
+					{% endfor %}
+				</ol>
+			</div>
+			{% endif %}
+
+			
+		</section>
+
+		<!-- Comment Section -->
+		<div class="max-w-4xl mx-auto p-4 bg-white rounded-lg shadow-lg mt-8">
+			<h2 class="text-2xl font-semibold mb-6 text-indigo-600">Comments</h2>
+		
+			<!-- Display Comments -->
+			{% for comment in comments %}
+			<div class="flex items-start space-x-4 mb-6">
+				<div class="shrink-0">
+					<img src="{{ url_for('static', filename='images/avartar.png') }}" alt="User Avatar"
+						class="w-10 h-10 rounded-full bg-gray-400">
+				</div>
+				<div class="flex-1 bg-gray-100 p-4 rounded-lg">
+					<div class="flex justify-between items-center">
+						<h3 class="font-semibold text-gray-800">{{ comment.user.username }}</h3>
+						<p class="text-sm text-gray-500">{{ comment.created_at.strftime('%b %d, %Y %I:%M %p') }}</p>
+					</div>
+					<p class="text-gray-700 mt-2">{{ comment.text }}</p>
+					{% if current_user.is_authenticated and current_user.id == comment.user_id %}
+					<div class="flex space-x-2 mt-4">
+						<form action="{{ url_for('recipe_routes.update_comment', comment_id=comment.id) }}" method="POST"
+							class="inline">
+							<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+							<input type="text" name="text" placeholder="Update your comment..."
+								class="text-gray-700 p-2 rounded bg-white border-gray-300 w-full">
+							<button type="submit" class="text-blue-600 hover:text-blue-800">Update</button>
+						</form>
+						<form action="{{ url_for('recipe_routes.delete_comment', comment_id=comment.id) }}" method="POST"
+							class="inline">
+							<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+							<button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
+						</form>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+			{% else %}
+			<p class="text-gray-500">No comments yet. Be the first to comment!</p>
+			{% endfor %}
+		
+			<!-- Add Comment Form -->
+			{% if current_user.is_authenticated %}
+			<form action="{{ url_for('recipe_routes.add_comment', recipe_id=recipe.id) }}" method="POST" class="mt-6">
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+				<textarea name="text" placeholder="Write a comment..."
+					class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></textarea>
+				<button type="submit"
+					class="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">Comment</button>
+			</form>
+			{% else %}
+			<p class="text-gray-500">Please <a href="{{ url_for('auth.login') }}" class="text-indigo-600 hover:underline">sign
+					in</a> to leave a comment.</p>
+			{% endif %}
+		</div>
+
+
+	</main>
+
+
+	{% endblock content %}
+
+	{% block scripts %}
+	<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+	<script>
+		function copyToClipboard(recipeId)
+			{
+				const fullUrl = `${window.location.origin}/recipes/${recipeId}`; // Construct full URL
+				navigator.clipboard.writeText(fullUrl).then(() =>
+				{
+					// Show flash message
+					const flashMessageBox = document.createElement('div');
+					flashMessageBox.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 p-4 w-96 bg-info text-white text-center rounded-lg shadow-lg flash-message';
+					flashMessageBox.innerHTML = `
+                Recipe link copied to clipboard!
+                <button class="ml-4 font-bold" onclick="this.parentElement.style.display='none';">×</button>
+            `;
+
+					// Append the flash message to the flash messages container
+					const flashContainer = document.querySelector('.flash-messages');
+					if (flashContainer)
+					{
+						flashContainer.appendChild(flashMessageBox);
+					} else
+					{
+						// If the flash container is not found, append it directly to the body
+						document.body.appendChild(flashMessageBox);
+					}
+
+					// Auto-remove the flash message after 3 seconds
+					setTimeout(() =>
+					{
+						if (flashMessageBox)
+						{
+							flashMessageBox.remove();
+						}
+					}, 3000);
+				}).catch(err =>
+				{
+					console.error('Failed to copy: ', err);
+				});
+			}
+	</script>
+	{% endblock scripts %}

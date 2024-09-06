@@ -6,11 +6,11 @@
 		onclick="window.location.href='{{ url_for('recipe_routes.add_recipe') }}';">+ Add Recipe</button>
 </div>
 <div class="mt-6">
-	<input type="text" placeholder="Search by recipe name, category, ingredients..."
+	<input type="text" name="search" placeholder="Search by recipe name, category, ingredients..."
 		class="w-full border border-gray-300 rounded-lg py-2 px-4 mb-6">
 </div>
 <div class="grid grid-cols-3 gap-6">
-	<!-- Repeat this block for each recipe card -->
+
 	{% for recipe in recipes %}
 	<div class="bg-white shadow-lg rounded-lg overflow-hidden">
 		<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
@@ -30,6 +30,19 @@
 	</div>
 	{% endfor %}
 	<!-- Additional recipe cards -->
+</div>
+<!-- Pagination -->
+<div class="flex justify-center mt-6">
+	<div class="inline-flex items-center space-x-4">
+		{% if current_page > 1 %}
+		<a href="?page={{ current_page - 1 }}&per_page={{ per_page }}"
+			class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Previous</a>
+		{% endif %}
+		<span class="text-gray-600">Page {{ current_page }} of {{ total_pages }}</span>
+		{% if current_page < total_pages %} <a href="?page={{ current_page + 1 }}&per_page={{ per_page }}"
+			class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</a>
+			{% endif %}
+	</div>
 </div>
 
 <section class="mt-12">
@@ -63,15 +76,5 @@
 		<!-- Additional viewed recipe cards -->
 	</div>
 </section>
-
-<div class="pagination">
-    {% if current_page > 1 %}
-        <a href="?page={{ current_page - 1 }}&per_page={{ per_page }}">Previous</a>
-    {% endif %}
-    <span>Page {{ current_page }} of {{ total_pages }}</span>
-    {% if current_page < total_pages %}
-        <a href="?page={{ current_page + 1 }}&per_page={{ per_page }}">Next</a>
-    {% endif %}
-</div>
 
 {% endblock %}

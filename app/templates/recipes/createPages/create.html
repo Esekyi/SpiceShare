@@ -20,22 +20,22 @@
 
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<div>
-			<label class="block text-gray-700">Title</label>
-			<input name="title" type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="Sweet Potato Enchiladas">
+			<label for="title" class="block text-gray-700">Title</label>
+			<input name="title" type="text" id="title" class="w-full p-2 border border-gray-300 rounded" placeholder="Sweet Potato Enchiladas">
 		</div>
 		<div>
-			<label class="block text-gray-700">Description</label>
-			<input name="description" type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="Tasty enchilada recipe">
+			<label for="description" class="block text-gray-700">Description</label>
+			<input name="description" id="description" type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="Tasty enchilada recipe">
 		</div>
 		<div>
-			<label class="block text-gray-700">Oven Temp</label>
+			<label for="oven_temp" class="block text-gray-700">Oven Temp</label>
 			<div class="input-group">
-				<input name="oven_temp"  type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="60">
+				<input name="oven_temp"  type="number" id="oven_temp" class="p-2 border border-gray-300 rounded w-1/2" placeholder="60">
 				<span>°F</span>
 			</div>
 		</div>
 		<div>
-			<label class="block text-gray-700">Category</label>
+			<label for="categoryIdInput" class="block text-gray-700">Category</label>
 			<input type="text" id="categoryInput" class="w-full p-2 border border-gray-300 rounded"
 				placeholder="Select a category" readonly onclick="toggleDropdown()">
 				<input type="hidden" id="categoryIdInput" name="category_id">
@@ -55,23 +55,23 @@
 		
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-3 mt-6">
 			<div>
-				<label class="block text-gray-700">Prep Time</label>
+				<label for="prep_time" class="block text-gray-700">Prep Time</label>
 				<div class="input-group">
-					<input name="prep_time" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="30">
+					<input name="prep_time" id="prep_time" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="30">
 					<span>min</span>
 				</div>
 			</div>
 			<div>
-				<label class="block text-gray-700">Cook Time</label>
+				<label for="cook_time" class="block text-gray-700">Cook Time</label>
 				<div class="input-group">
-					<input name="cook_time" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="25">
+					<input name="cook_time" id="cook_time" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="25">
 					<span>min</span>
 				</div>
 			</div>
 			<div>
-				<label class="block text-gray-700">Yield</label>
+				<label for="servings" class="block text-gray-700">Yield</label>
 				<div class="input-group">
-					<input name="servings" type="number" class="p-2 border border-gray-300 rounded w-1/2" placeholder="5">
+					<input name="servings" type="number" id="servings" class="p-2 border border-gray-300 rounded w-1/2" placeholder="5">
 					<span>servings</span>
 				</div>
 			</div>
@@ -115,4 +115,10 @@
 		</div>
 </form>
 {% endblock %}
+
+
+	{% block scripts %}
+		<script src="{{ url_for('static', filename='js/recipe_form.js') }}"></script>
+	{% endblock scripts %}
+
 
