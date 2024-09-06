@@ -15,7 +15,6 @@ class Config:
 	SESSION_COOKIE_HTTPONLY = True
 	SESSION_COOKIE_SECURE = True
 	REMEMBER_COOKIE_DURATION = timedelta(days=14)
-	SERVER_NAME = '127.0.0.1:5000'
 
 
     # AWS S3 configuration
