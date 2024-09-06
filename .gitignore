@@ -2,8 +2,6 @@
 __pycache__/
 .env
 notice.txt
-run.py
-.gitignore
 # IDE and editor files
 .vscode/
 .idea/
