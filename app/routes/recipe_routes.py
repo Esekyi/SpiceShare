@@ -7,6 +7,7 @@ from app.services.image_service import upload_image_to_s3, delete_image_from_s3
 from app.services.comment_service import CommentService
 from flask_login import login_required, current_user
 from app.models.user import User
+from app.models.category import Category
 from app.models.comment import Comment
 import os
 
@@ -102,42 +103,49 @@ def edit_recipe(recipe_id):
 
     if request.method == 'POST':
         if recipe and recipe.user_id == current_user.id:
-            data = request.form.to_dict()
-            ingredients = request.form.getlist('ingredients[]')
-            instructions = request.form.getlist('instructions[]')
+            data = request.form.to_dict()  # Ensure this is a dictionary
+
+            form_ingredients = request.form.getlist('ingredients[]')
+            form_instructions = request.form.getlist('instructions[]')
             image = request.files.get('image')
+
+            # If they are strings instead of lists
+            if isinstance(ingredients, str):
+                ingredients = [ingredients]
+            if isinstance(instructions, str):
+                instructions = [instructions]
+
 
             errors = validate_recipe_data(data)
             if errors:
                 for error in errors:
                     flash(error, 'error')
-                return redirect(url_for('recipe_routes.add_recipe', recipe_id=recipe_id))
+                return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
             image_url = recipe.image_url
             if image:
                 try:
                     image_url = upload_image_to_s3(image)
-                    flash("Image updated successfully", "succes")
+                    flash("Image updated successfully", "success")
                 except ValueError as e:
                     flash(str(e), 'error')
                     return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
             try:
-                update_recipe(recipe, data, ingredients,
-                              instructions, image_url)
-                flash(
-                    f"Recipe {recipe.title} updated successfully!", 'success')
+                update_recipe(recipe, data, form_ingredients, form_instructions, image_url)  # Ensure data is a dict
+                flash(f"Recipe {recipe.title} updated successfully!", 'success')
                 return redirect(url_for('recipe_routes.view_recipe', recipe_id=recipe_id))
 
             except Exception as e:
                 # Rollback db session in case of an error
                 db.session.rollback()
-                flash(
-                    f"An error occurred while creating the recipe: {str(e)}", "error")
+                flash(f"An error occurred while updating the recipe: {str(e)}", "error")
                 return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
     categories = CategoryService.get_all_categories()
-    return render_template('recipes/createPages/edit1.html', recipe=recipe, ingredients=ingredients, instructions=instructions, categories=categories, title=f'Edit Recipe {recipe.title} | SpiceShare Inc.')
+    current_category = db.session.query(
+        Category).filter_by(id=recipe.category_id).first()
+    return render_template('recipes/createPages/edit.html', recipe=recipe, ingredients=ingredients, current_category=current_category, instructions=instructions, categories=categories, title=f'Edit Recipe {recipe.title} | SpiceShare Inc.')
 
 
 @bp.route('/recipes/<uuid:recipe_id>/delete', methods=['POST'], strict_slashes=False)

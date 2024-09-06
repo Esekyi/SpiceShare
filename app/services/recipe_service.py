@@ -79,7 +79,7 @@ def get_all_recipes(page=1, per_page=3):
         dict: A dictionary containing paginated recipes and pagination info.
     """
 
-    recipes = Recipe.query.order_by(Recipe.created_at.desc()).all()
+    recipes = Recipe.query.order_by(Recipe.updated_at.desc()).all()
     return paginate(recipes, page, per_page)
 
 
@@ -88,7 +88,7 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
     try:
         recipe.title = data.get('title', recipe.title)
         recipe.description = data.get('description', recipe.description)
-        recipe.category_id = data.grt('category_id', recipe.category_id)
+        recipe.category_id = data.get('category_id', recipe.category_id)
         recipe.oven_temp = int(data.get('oven_temp', recipe.oven_temp)) if data.get(
             'oven_temp') else recipe.oven_temp
         recipe.prep_time = int(data.get('prep_time', recipe.prep_time)) if data.get(
@@ -101,35 +101,46 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
 
         # Update ingredients
         existing_ingredients = {
-            ing.id: ing for ing in Ingredient.query.filter_by(recipe_id=recipe.id).all()}
-        for ingredient_data in ingredients:
-            if ingredient_data:
-                ingredient_id = ingredient_data.get('id')
-                if ingredient_id and ingredient_id in existing_ingredients:
-                    existing_ingredients[ingredient_id].name = ingredient_data['name']
+            ing.id: ing for ing in Ingredient.query.filter_by(recipe_id=recipe.id).all()
+        }
+        for idx, ingredient_name in enumerate(ingredients):
+            if ingredient_name:
+                ingredient_id = list(existing_ingredients.keys())[
+                    idx] if idx < len(existing_ingredients) else None
+                if ingredient_id:
+                    # Update existing ingredient
+                    existing_ingredients[ingredient_id].name = ingredient_name
                 else:
-                    # add new ingredient
+                    # Add new ingredient
                     new_ingredient = Ingredient(
-                        name=ingredient_data['name'],
-                        recipe_id=recipe.id
-                    )
-                    deb.session.add(new_ingredient)
+                        name=ingredient_name, recipe_id=recipe.id)
+                    db.session.add(new_ingredient)
+
+        # Remove any extra ingredients not submitted in the form
+        for extra_idx in range(len(ingredients), len(existing_ingredients)):
+            db.session.delete(list(existing_ingredients.values())[extra_idx])
+
 
         # Update instructions
-        existing_instructions = {
-            instr.step_number: instr for instr in Instruction.query.filter_by(recipe_id=recipe.id).all()}
-        for i, instruction in enumerate(instructions):
-            if instruction:
-                if i + 1 in existing_instructions:
-                    # update existing instructions
-                    existing_instructions[i + 1].name = instruction
+        existing_instructions = {instr.step_number: instr for instr in Instruction.query.filter_by(recipe_id=recipe.id).all()}
+        for idx, instruction_text in enumerate(instructions):
+            if instruction_text:
+                step_number = idx + 1
+                if step_number in existing_instructions:
+                    # Update existing instruction
+                    existing_instructions[step_number].name = instruction_text
                 else:
+                    # Add new instruction
                     new_instruction = Instruction(
-                        step_number=i + 1,
-                        name=instruction,
+                        step_number=step_number,
+                        name=instruction_text,
                         recipe_id=recipe.id
                     )
                     db.session.add(new_instruction)
+
+        # Remove any extra instructions not submitted in the form
+        for extra_idx in range(len(instructions) + 1, len(existing_instructions) + 1):
+            db.session.delete(existing_instructions[extra_idx])
 
         db.session.commit()
 

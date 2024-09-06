@@ -1,0 +1,145 @@
+{% extends "recipes/createPages/create_layout.html" %}
+
+{% block content %}
+<form action="{{ url_for('recipe_routes.edit_recipe', recipe_id=recipe.id) }}" method="POST" id="recipe-form" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+	<h1 class="text-2xl font-semibold text-gray-800 mb-6">Make it Even Better...</h1>
+	<div class="mb-6">
+		<label for="image-input" class="block text-gray-700">Picture</label>
+		<div class="image-container">
+			{% if recipe.image_url %}
+				<img id="image-preview" class="image-preview" alt="Image Preview" 
+				src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" style="display: block;">
+			{% else %}
+				<img id="image-preview" class="image-preview" alt="Image Preview">
+			{% endif %}
+			<div class="button-container">
+				<button id="add-photo-btn" type="button"
+					class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+					+ Add a Photo
+				</button>
+			</div>
+			<input type="file" id="image-input" name="image" accept="image/*" style="display: none;"
+				aria-label="Select an image">
+		</div>
+	</div>
+	{% if recipe %}
+
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+		<div>
+			<label for="title" class="block text-gray-700">Title</label>
+			<input name="title" id="title" value="{{recipe.title}}" type="text" class="w-full p-2 border border-gray-300 rounded">
+		</div>
+		<div class="overflow-hidden whitespace-nowrap">
+			<label for="description" class="block text-gray-700">Description</label>
+			<input name="description" id="description" value="{{recipe.description}}" type="text" class="w-full p-2 border border-gray-300 rounded overflow-ellipsis">
+		</div>
+		<div>
+			<label for="oven_temp" class="block text-gray-700">Oven Temp</label>
+			<div class="input-group">
+				<input name="oven_temp" id="oven_temp" value="{{recipe.oven_temp}}" type="number" class="p-2 border border-gray-300 rounded w-1/2">
+				<span>°F</span>
+			</div>
+		</div>
+	  {% endif %}
+		<div>
+			{% if categories %}
+				<label for="categoryIdInput" class="block text-gray-700">Category</label>
+				
+				<input type="text" value="{{current_category.name}}" id="categoryInput" class="w-full p-2 border border-gray-300 rounded"
+				readonly onclick="toggleDropdown()">
+				
+				<input type="hidden" id="categoryIdInput" name="category_id" value="{{current_category.id}}">
+				
+				<div id="dropdownMenu" class="dropdown-menu mt-2 border border-gray-300 rounded">
+						{% for category in categories %}
+							<div class="dropdown-item" onclick="selectCategory('{{ category.name }}','{{ category.id }}')">
+								{{category.name}}
+							</div>
+						{% endfor %}
+			{% else %}
+				<div class="dropdown-item">No Categories available</div>
+			{% endif %}
+				</div>
+		</div>
+	</div>
+
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-3 mt-6">
+		<div>
+			<label for="prep_time" class="block text-gray-700">Prep Time</label>
+			<div class="input-group">
+				<input name="prep_time" id="prep_time" value="{{recipe.prep_time}}" type="number" class="p-2 border border-gray-300 rounded w-1/2" >
+				<span>min</span>
+			</div>
+		</div>
+		<div>
+			<label for="cook_time" class="block text-gray-700">Cook Time</label>
+			<div class="input-group">
+				<input name="cook_time" id="cook_time" value="{{recipe.cook_time}}" type="number" class="p-2 border border-gray-300 rounded w-1/2" >
+				<span>min</span>
+			</div>
+		</div>
+		<div>
+			<label for="servings" class="block text-gray-700">Yield</label>
+			<div class="input-group">
+				<input name="servings" id="servings" value="{{recipe.servings}}" type="number" class="p-2 border border-gray-300 rounded w-1/2" 
+				<span>servings</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Ingredients Section -->
+	<div class="mt-8">
+		<h2 class="text-xl font-semibold text-gray-800 mb-2">Ingredients</h2>
+		<div id="ingredients-list" class="grid grid-cols-2 gap-4 p-4" style="background-color: #e2e8f0;">
+
+			{% for ingredient in ingredients %}
+			<div class="recipe-card">
+				<div class="input-group ingredient-card overflow-hidden whitespace-nowrap">
+					<input type="text" name="ingredients[]" class="w-full overflow-ellipsis p-2 border border-gray-300 rounded" value="{{ ingredient.name }}">
+					<button type="button" class="text-red-500 hover:text-red-700" onclick="removeIngredient(this)">×</button>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+		<div class="flex justify-end mt-4">
+			<button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+				onclick="addIngredient()">+ Add Ingredient</button>
+		</div>
+	</div>
+	
+	<!-- Instructions Section -->
+	<div class="mt-6">
+		<h2 class="text-xl font-semibold text-gray-800 mb-2">Instructions</h2>
+		<div id="directions-list" class="p-4" style="background-color: #e2e8f0;">
+
+			{% for instruction in instructions %}
+				<div class="recipe-card mb-2">
+					<div class="input-group direction-card overflow-hidden whitespace-nowrap">
+						<span class="step-number">{{ loop.index }}</span>
+						<input type="text" name="instructions[]" class="w-full p-2 border border-gray-300 rounded overflow-ellipsis"
+							value="{{ instruction.name }}" placeholder="Add new instruction" required>
+						<button type="button" class="text-red-500 hover:text-red-700" onclick="removeDirection(this)">×</button>
+					</div>
+				</div>
+
+			{% endfor %}
+		</div>
+		<div class="flex justify-end mt-4">
+			<button type="button" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700"
+				onclick="addDirection()">+ Add Direction</button>
+		</div>
+	</div>
+
+	<!-- Buttons -->
+	<div class="mt-8 flex justify-between">
+		<button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit</button>
+		<button type="button" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">Cancel</button>
+	</div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/edit_script.js') }}"></script>
+{% endblock scripts %}

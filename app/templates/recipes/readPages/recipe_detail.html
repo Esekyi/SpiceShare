@@ -9,19 +9,22 @@
 		 {% if recipe %}
 		<section class="text-center mb-8">
 			<h1 class="text-3xl font-semibold mb-2 text-indigo-600">{{recipe.title}}</h1>
-			<p class="text-sm text-gray-500">{{ recipe.created_at.strftime('%B %d, %Y') }} at {{ recipe.created_at.strftime('%I:%M %p') }}</p>
+			<p class="text-sm text-gray-500">
+				PUBLISHED: <span class="font-bold italic">{{ recipe.created_at.strftime('%d %b \'%y') if recipe.created_at else 'N/A' }}</span> &nbsp;
+				UPDATED: <span class="font-bold italic">{{ recipe.updated_at.strftime('%d %b \'%y') if recipe.updated_at else 'N/A' }}</span>
+			</p>
 			<p class="text-sm text-gray-500">By: {{recipe.user.username}}</p>
 		</section>
 
 		<!-- Image -->
+		 {% if recipe.image_url %}
 		<div class="relative mt-4">
-			{% if recipe.image_url %}
-				<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{ recipe.title }}"
-					class="w-full h-[500px] object-cover rounded-lg mb-8">
-			{% else %}
-				<img src="{{url_for('static', filename='images/no-image-available.png') }}" alt="{{ recipe.title }}"
-					class="w-full h-[500px] object-cover rounded-lg mb-8">
-			{% endif %}
+			<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{ recipe.title }}"
+				class="w-full h-[500px] object-cover rounded-lg mb-8">
+		{% else %}
+			<img src="{{url_for('static', filename='images/no-image-available.png') }}" alt="{{ recipe.title }}"
+				class="w-full h-[500px] object-cover rounded-lg mb-8">
+		{% endif %}
 			<div class="absolute top-2 right-2 space-x-2">
 				<button class="bg-white text-gray-700 px-3 py-1 rounded shadow hover:bg-gray-100" onclick="window.print()">Print</button>
 				<button class="bg-white text-gray-700 px-3 py-1 rounded shadow hover:bg-gray-100" onclick="copyToClipboard('{{ recipe.id }}')">Share</button>
