@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template
 from app import db
 from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user_details, create_user, get_user_by_email, get_user_by_username, is_valid_username
+from app.services.recipe_service import get_recipes_by_user
 from app.models.recipe import Recipe
 from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
@@ -119,10 +120,16 @@ def delete_user_profile(user_id):
 @login_required
 def user_profile(user_id):
     user = get_user_by_id(user_id)
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 9))
 
     if user != current_user:
         flash("You are not authorized to view page", 'danger')
         return redirect(url_for('index'))
     
-    recipes = Recipe.query.filter_by(user_id=user.id).all()
-    return render_template('user_auth/user_profile.html',recipes=recipes, user=user)
+    paginated_user_recipes = get_recipes_by_user(user.id, page, per_page)
+    return render_template('user_auth/user_profile.html', recipes=paginated_user_recipes['items'], user=user, total_items=paginated_user_recipes['total_items'],
+                           total_pages=paginated_user_recipes['total_pages'],
+                           current_page=paginated_user_recipes['current_page'],
+                           per_page=per_page
+                           )

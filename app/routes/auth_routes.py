@@ -9,6 +9,16 @@ from app import db
 auth_bp = Blueprint('auth', __name__)
 
 
+def is_safe_url(target):
+	"""Check if the target URL is safe for redirection."""
+	from urllib.parse import urlparse, urljoin
+	# Allow relative URLs
+	if target.startswith('/'):
+		return True
+	safe = urlparse(target).scheme in ['http', 'https'] and \
+	       urljoin(request.host_url, target) == target
+	return safe
+
 @auth_bp.route('/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
 	"""Login authentication handler"""
@@ -19,12 +29,13 @@ def login():
 	if request.method == 'POST':
 		email = request.form["email"]
 		password = request.form["password"]
+		next_page = request.form.get("next")
 		user = User.query.filter_by(email=email).first()
 
 		if user and check_password_hash(user.password_hash, password):
 			login_user(user)
-			next_page = request.args.get('next')
-			if next_page:
+
+			if next_page and is_safe_url(next_page):
 				return redirect(next_page)
 			else:
 				flash('logged in', 'success')
