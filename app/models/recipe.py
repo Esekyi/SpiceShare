@@ -32,3 +32,8 @@ class Recipe(db.Model):
 
     def __repr__(self):
         return f'<Recipe {self.title}>'
+
+    def increment_view_count(self):
+        """Increment the view count without updating the updated_at timestamp."""
+        self.view_count += 1
+        # No commit or onupdate manipulation here

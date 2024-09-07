@@ -150,6 +150,7 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
 
 
 def get_recipe_by_id(recipe_id):
+    """Fetch a recipe by its ID without updating the updated_at timestamp."""
     return Recipe.query.get_or_404(recipe_id)
 
 
@@ -186,6 +187,7 @@ def get_random_recipes_with_images(limit=3):
     return recipes_with_image
 
 
-def get_recipes_by_user(user_id):
-    """Fetch recipes created by a specific user."""
-    return Recipe.query.filter_by(user_id=user_id)
+def get_recipes_by_user(user_id, page=1, per_page=9):
+    """Fetch recipes created by a specific user with pagination."""
+    recipes = Recipe.query.filter_by(user_id=user_id).all()
+    return paginate(recipes, page, per_page)

@@ -32,12 +32,13 @@ def create_app():
 	csrf.init_app(app)
 
 	# register blueprint
-	from app.routes import user_routes, recipe_routes, auth_routes, category_routes, main_routes, api
+	from app.routes import user_routes, recipe_routes, auth_routes, category_routes, main_routes,search_routes, api
 	app.register_blueprint(user_routes.bp)
 	app.register_blueprint(recipe_routes.bp)
 	app.register_blueprint(auth_routes.auth_bp)
-	app.register_blueprint(category_routes.cat_bp, url_prefix='/api')
 	app.register_blueprint(main_routes.main)
+	app.register_blueprint(search_routes.search_bp)
+	app.register_blueprint(category_routes.cat_bp, url_prefix='/api')
 	app.register_blueprint(api.api, url_prefix='/api/v1')
 
 

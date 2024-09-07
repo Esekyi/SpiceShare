@@ -50,8 +50,10 @@ def add_recipe():
         except Exception as e:
             # Rollback db session in case of an error
             db.session.rollback()
-            flash(
-                f"An error occurred while creating the recipe: {str(e)}", "error")
+            flash(f"An error occurred while creating the recipe: {str(e)}", "error")
+            # If recipe creation fails, delete the uploaded image if it was uploaded
+            if image_url:
+                delete_image_from_s3(image_url)  # delete the image if it was uploaded
             return redirect(url_for('recipe_routes.add_recipe'))
 
 
@@ -87,9 +89,11 @@ def view_recipe(recipe_id):
         comment.user = db.session.query(User).filter_by(id=comment.user_id).first()  # Get the user who made the comment
 
     if recipe:
-        recipe.view_count += 1
-        db.session.commit()
+        recipe.increment_view_count()  # Increment view count without committing
         recipe.user = db.session.query(User).filter_by(id=recipe.user_id).first()
+        
+        # Commit all changes here
+        db.session.commit()  # Commit after all changes are made
         return render_template('recipes/readPages/recipe_detail.html', recipe=recipe, ingredients=ingredients, instructions=instructions, comments=comments, title=f'{recipe.title} - SpiceShare Inc.')
     else:
         flash("Recipe not found.", "error")
@@ -140,6 +144,9 @@ def edit_recipe(recipe_id):
                 # Rollback db session in case of an error
                 db.session.rollback()
                 flash(f"An error occurred while updating the recipe: {str(e)}", "error")
+                # delete the image if it was uploaded
+                if image_url:
+                    delete_image_from_s3(image_url)
                 return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
     categories = CategoryService.get_all_categories()
