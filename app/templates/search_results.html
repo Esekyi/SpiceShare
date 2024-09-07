@@ -1,0 +1,43 @@
+{% extends "recipes/readPages/read_layout.html" %}
+{% block content %}
+<div class="container mx-auto mt-8">
+	<h1 class="text-3xl font-semibold mb-6 text-indigo-600">Search Results</h1>
+
+	{% if query %}
+	<p class="mb-4">Results for "<strong>{{ query }}</strong>":</p>
+	{% else %}
+	<p class="mb-4">No search query provided.</p>
+	{% endif %}
+
+	{% if recipes %}
+	<ul class="space-y-4">
+		{% for recipe in recipes %}
+		<li class="border-b pb-4">
+			<a href="{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}"
+				class="text-xl text-blue-600 hover:underline">{{ recipe.title }}</a>
+			<p class="text-gray-700">{{ recipe.description[:150] }}...</p>
+			<p class="text-gray-500 text-sm">By {{ recipe.author.username }} | Category: {{ recipe.category.name }}</p>
+		</li>
+		{% endfor %}
+	</ul>
+
+	<!-- Pagination -->
+	<div class="flex justify-center mt-6">
+		<div class="inline-flex items-center space-x-4">
+			{% if current_page > 1 %}
+			<a href="?q={{query}}&page={{ current_page - 1 }}&per_page={{ per_page }}"
+				class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Previous</a>
+			{% endif %}
+			<span class="text-gray-600">Page {{ current_page }} of {{ total_pages }}</span>
+			{% if current_page < total_pages %}
+			<a href="?q={{ query }}&page={{ current_page + 1 }}&per_page={{ per_page }}"
+				class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</a>
+				{% endif %}
+		</div>
+	</div>
+
+	{% else %}
+	<p class="text-gray-500">No recipes found matching your search criteria.</p>
+	{% endif %}
+</div>
+{% endblock %}

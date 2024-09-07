@@ -4,39 +4,29 @@ from app.models.category import Category
 from app.models.ingredient import Ingredient
 from app.models.instruction import Instruction
 from app.models.user import User
+from app.services.pagination_service import paginate
+from sqlalchemy import or_
 
 
-def search_recipes(query):
+def search_recipes(query, page=1, per_page=10):
 	"""
     Search for recipes based on a query string.
     The query can match recipe names, ingredients, author or categories.
     """
 	query = f"%{query.lower()}%"
 
-	# Search by title
-	recipes_by_title = Recipe.query.filter(Recipe.title.ilike(query)).all()
 
-	# Search by description
-	recipes_by_description = Recipe.query.filter(
-		Recipe.description.ilike(query)).all()
+	recipes = Recipe.query.join(Ingredient).join(Category).join(User).filter(
+		or_(
+			Recipe.title.ilike(query),
+			Recipe.description.ilike(query),
+			Ingredient.name.ilike(query),
+			Category.name.ilike(query),
+			User.first_name.ilike(query),
+			User.last_name.ilike(query),
+			User.username.ilike(query)
+		)
+	).distinct()
 
-	# Search by ingredients
-	recipes_by_ingredient = db.session.query(Recipe).join(
-		Ingredient).filter(Ingredient.name.ilike(query)).all()
 
-	# Search by category name
-	recipes_by_category = db.session.query(Recipe).join(
-		Category).filter(Category.name.ilike(query)).all()
-
-	# Search by author (first name, last name or username)
-	author_recipes = db.session.query(Recipe).join(User).filter(
-		(User.first_name.ilike(query)) |
-		(User.last_name.ilike(query)) |
-		(User.username.ilike(query))
-	).all()
-
-	# calling a set function on it to remove duplicates
-	all_recipes = set(recipes_by_title + recipes_by_category +
-	                  recipes_by_description + recipes_by_ingredient + author_recipes)
-
-	return list(all_recipes)
+	return paginate(recipes.all(), page, per_page)
