@@ -2,7 +2,6 @@ from app import db
 from datetime import datetime
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import inspect
 
 
 class Recipe(db.Model):
