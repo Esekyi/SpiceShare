@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="keywords" content="recipe, cooking, food, SpiceShare">
 	<title>SpiceShare - Share Your Taste, Explore New Flavors</title>
 	<!-- Tailwind CSS -->
 	<link rel="stylesheet" href="{{url_for('static', filename='css/output.css')}}">
@@ -46,7 +47,6 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
 	<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
 	<link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-	
 </head>
 
 <body class="bg-gray-100 font-poppins">
@@ -167,15 +167,16 @@
 					setTimeout(() => {
 						recipeGrid.innerHTML = ''; // Clear existing recipes
 
-						// Use the recipes directly from the response
-						data.recipes.forEach(recipe => {
-							const recipeCard = `
+						if (data.recipes && data.recipes.length > 0) {
+							// Use the recipes directly from the response
+							data.recipes.forEach(recipe => {
+								const recipeCard = `
 					<div class="bg-white shadow-lg rounded-lg overflow-hidden transform transition-transform duration-500 hover:scale-105">
                             <div class="h-40 bg-gray-200 flex items-center justify-center">
                                 ${recipe.image_url && recipe.image_url.trim() !== '' ? `
-                                <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/${recipe.image_url}" alt="${recipe.title}" class="w-full h-full object-cover">
+                                <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/${recipe.image_url}" alt="${recipe.title}" class="w-full h-full object-cover" loading="lazy">
                                 ` : `
-                                <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/no-image.png" alt="${recipe.title}" class="w-full h-full object-cover">
+                                <img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/no-image.png" alt="${recipe.title}" class="w-full h-full object-cover" loading="lazy">
                                 `}
                             </div>
                             <div class="p-4">
@@ -185,8 +186,12 @@
                             </div>
                     </div>
 					`;
-							recipeGrid.innerHTML += recipeCard;
-						});
+								recipeGrid.innerHTML += recipeCard;
+							});
+						} else {
+							// Display message if no recipes are found
+							recipeGrid.innerHTML = '<p class="text-gray-500 text-center">No recipes available at this time.</p>';
+						}
 						recipeGrid.style.opacity = 1;
 
 						const images = document.querySelectorAll('img');
