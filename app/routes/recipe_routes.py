@@ -96,9 +96,9 @@ def view_recipe(recipe_id):
         if current_user.is_authenticated:
             if current_user.id != recipe.user_id:
                 recipe.increment_view_count()  # Increment view count if the viewer is not the author
-            else:
-                # If anonymous, increment view count
-                recipe.increment_view_count()
+        else:
+            # If anonymous, increment view count
+            recipe.increment_view_count()
         recipe.user = db.session.query(User).filter_by(id=recipe.user_id).first()
 
         return render_template('recipes/readPages/recipe_detail.html', recipe=recipe, ingredients=ingredients, instructions=instructions, comments=comments, title=f'{recipe.title} - SpiceShare Inc.')
