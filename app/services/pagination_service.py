@@ -12,15 +12,17 @@ def paginate(items, page, per_page):
         dict: A dictionary containing paginated items and pagination info.
 	"""
 
+	# Ensure page is at least 1
 	if page < 1:
-		raise ValueError("Page number must be 1 or greater.")
+		page = 1
 	
 	total_items = len(items)
 	total_pages = ceil(total_items / per_page)
 
+	# Adjust page if it exceeds total pages
 	if page > total_pages:
-		raise ValueError("Page number exceeds total pages")
-	
+		page = total_pages
+
 	start = (page - 1) * per_page
 	end = start + per_page
 	paginated_items = items[start:end]

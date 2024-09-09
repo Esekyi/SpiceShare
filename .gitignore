@@ -2,6 +2,7 @@
 __pycache__/
 .env
 notice.txt
+
 # IDE and editor files
 .vscode/
 .idea/

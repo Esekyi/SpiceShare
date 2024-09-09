@@ -14,6 +14,7 @@
 				UPDATED: <span class="font-bold italic">{{ recipe.updated_at.strftime('%d %b \'%y') if recipe.updated_at else 'N/A' }}</span>
 			</p>
 			<p class="text-sm text-gray-500">By: {{recipe.user.username}}</p>
+			<p class="text-sm text-gray-500">Views: {{ recipe.view_count }}</p> <!-- View Count -->
 		</section>
 
 		<!-- Image -->

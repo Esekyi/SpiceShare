@@ -12,76 +12,110 @@
 		<button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-r-lg hover:bg-indigo-700 transition duration-300">Search</button>
 	</form>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+{% if recipes %}
+	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-	{% for recipe in recipes %}
-	<div class="bg-white shadow-lg rounded-lg overflow-hidden">
-		<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
+		{% for recipe in recipes %}
+		<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+			<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
+				{% if recipe.image_url %}
+				<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{recipe.title}}"
+					class="w-full h-full object-cover" loading="lazy">
+				{% else %}
+				<span class="text-gray-500">No Image Available</span> <!-- Optional text for no image -->
+				{% endif %}
+				</div>
+				<div class="p-4">
+					<h3 class="text-lg font-bold">{{recipe.title}}</h3>
+					<p class="text-gray-600">{{recipe.description[:30]}}...</p>
+					<p class="text-gray-500">Created by: {{ recipe.user.username }}</p>
+				<a href="{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}" class="text-blue-600 mt-2 inline-block">Read
+					More</a>
+				</div>
+				</div>
+				{% endfor %}
+	</div>
+	<!-- Pagination -->
+	{% if total_pages > 1 %} <!-- Check if total pages are greater than 1 -->
+	<div class="flex justify-center mt-6">
+		<div class="inline-flex items-center space-x-4">
+			{% if current_page > 1 %}
+			<a href="?page={{ current_page - 1 }}&per_page={{ per_page }}"
+				class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Previous</a>
+			{% endif %}
+			<span class="text-gray-600">Page {{ current_page }} of {{ total_pages }}</span>
+			{% if current_page < total_pages %} <a href="?page={{ current_page + 1 }}&per_page={{ per_page }}"
+				class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</a>
+			{% endif %}
+		</div>
+		</div>
+	{% endif %}
+	{% else %}
+	<div class="flex justify-center mt-6">
+		<p>No recipes yet. <a href="{{ url_for('recipe_routes.add_recipe') }}" class="text-indigo-600 hover:underline">Be
+				the first to post a recipe</a></p>
+	</div>
+	{% endif %}
+
+<!-- Quick and Easy to make Recipes -->
+{% if quick_recipes|length > 0 %}
+<h2 class="text-2xl font-bold mt-12 mb-4">Quick and Easy Recipes</h2>
+<section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+
+	{% for recipe in quick_recipes %}
+	<div class="bg-gradient-to-r from-blue-100 via-green-100 to-yellow-100 shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition duration-300 ease-in-out hover:shadow-2xl cursor-pointer"
+		onclick="window.location.href='{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}';">
+		<div class="h-40 bg-gray-200 flex items-center justify-center relative group">
 			{% if recipe.image_url %}
 			<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}"
-				alt="{{recipe.title}}" class="w-full h-full object-cover">
+				alt="{{recipe.title}}"
+				class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-80"
+				loading="lazy">
 			{% else %}
-			<span class="text-gray-500">No Image Available</span> <!-- Optional text for no image -->
+			<span class="text-gray-500">No Image Available</span>
 			{% endif %}
-		</div>
-		<div class="p-4">
-			<h3 class="text-lg font-bold">{{recipe.title}}</h3>
-			<p class="text-gray-600">Tasty enchilada recipe</p>
-			<p class="text-gray-500">Created by: {{ recipe.user.username }}</p>
-			<a href="{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}" class="text-blue-600 mt-2 inline-block">Read More</a>
-		</div>
-	</div>
-	{% endfor %}
-	<!-- Additional recipe cards -->
-</div>
-<!-- Pagination -->
-<div class="flex justify-center mt-6">
-	<div class="inline-flex items-center space-x-4">
-		{% if current_page > 1 %}
-		<a href="?page={{ current_page - 1 }}&per_page={{ per_page }}"
-			class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Previous</a>
-		{% endif %}
-		<span class="text-gray-600">Page {{ current_page }} of {{ total_pages }}</span>
-		{% if current_page < total_pages %} <a href="?page={{ current_page + 1 }}&per_page={{ per_page }}"
-			class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</a>
-			{% endif %}
-	</div>
-</div>
-
-<section class="mt-12">
-	<h2 class="text-2xl font-bold">Most Recent</h2>
-	<div class="flex space-x-4 mt-4 overflow-x-auto">
-		<!-- Repeat this block for each recent recipe -->
-		<div class="bg-white shadow-lg rounded-lg overflow-hidden w-64">
-			<img src="recent1.jpg" alt="Spinach Skillet" class="w-full h-40 object-cover">
-			<div class="p-4">
-				<h3 class="text-lg font-bold">Spinach Skillet</h3>
-				<p class="text-gray-600">Quick and easy comfort food</p>
-				<a href="#" class="text-blue-600 mt-2 inline-block">Read More</a>
+			</div>
+			<div class="p-4 bg-white">
+				<h3 class="text-lg font-bold text-gray-700 group-hover:text-blue-600 transition-colors duration-300">{{
+					recipe.title }}</h3>
+				<p class="text-gray-600">{{ recipe.description[:20] }}...</p>
 			</div>
 		</div>
-		<!-- Additional recent recipe cards -->
-	</div>
-</section>
+		{% endfor %}
 
-<section class="mt-12">
-	<h2 class="text-2xl font-bold">Most Viewed</h2>
-	<div class="flex space-x-4 mt-4 overflow-x-auto">
-		<!-- Repeat this block for each viewed recipe -->
-		<div class="bg-white shadow-lg rounded-lg overflow-hidden w-64">
-			<img src="viewed1.jpg" alt="Savory Porridge" class="w-full h-40 object-cover">
+	</section>
+{% endif %}
+
+
+<!-- Most Viewed Recipe -->
+{% if most_viewed %}
+<h2 class="text-2xl font-bold mb-4">Most Viewed Recipes</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+		{% for recipe in most_viewed %}
+		<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+			<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
+				{% if recipe.image_url %}
+				<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{recipe.title}}"
+					class="w-full h-full object-cover" loading="lazy">
+				{% else %}
+				<span class="text-gray-500">No Image Available</span> <!-- Optional text for no image -->
+				{% endif %}
+			</div>
 			<div class="p-4">
-				<h3 class="text-lg font-bold">Savory Porridge</h3>
-				<p class="text-gray-600">Aunt Mary's recipe</p>
-				<a href="#" class="text-blue-600 mt-2 inline-block">Read More</a>
+				<h3 class="text-lg font-bold">{{recipe.title}}</h3>
+				<p class="text-gray-600">{{recipe.description[:20]}}...</p>
+				{% if recipe.view_count > 0 %}
+				<p class="text-gray-500">Views: {{ recipe.view_count }}</p>
+				{% endif %}
+				<a href="{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}" class="text-blue-600 mt-2 inline-block">View
+					Recipe</a>
 			</div>
 		</div>
-		<!-- Additional viewed recipe cards -->
-	</div>
-</section>
+		{% endfor %}
+{% endif %}
 
 {% endblock %}
-
 {% block scripts %}
 	<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock scripts %}

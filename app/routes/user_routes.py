@@ -76,7 +76,6 @@ def edit_user(user_id):
     user = get_user_by_id(str(user_id))
 
     if current_user.id != user.id:
-        print(current_user.id)
         flash('You are not authorized to edit this profile', 'error')
         return redirect(url_for('user_routes.user_profile', user_id=current_user.id))
 
