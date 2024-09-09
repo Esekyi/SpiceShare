@@ -10,7 +10,7 @@ load_dotenv()
 class Config:
 	SECRET_KEY = os.getenv('SECRET_KEY') or 'with_this_you-will-never-guess'
 	SQLALCHEMY_DATABASE_URI = os.getenv(
-		'DATABASE_URL') or 'postgresql://spiceshare:fudf2024@localhost/spiceshare_db'
+		'DATABASE_URL') or 'postgresql://spiceshare:o@localhost/spiceshare_db'
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 	SESSION_COOKIE_HTTPONLY = True
 	SESSION_COOKIE_SECURE = True
