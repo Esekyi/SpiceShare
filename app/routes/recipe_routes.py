@@ -1,6 +1,6 @@
 from flask import Blueprint, request, url_for, render_template, flash, redirect
 from app import db
-from app.services.recipe_service import get_all_recipes, get_recipe_by_id, create_recipe, get_most_viewed_recipes, update_recipe, delete_recipe, get_recipe_with_details
+from app.services.recipe_service import get_all_recipes, get_recipe_by_id, create_recipe, get_most_viewed_recipes, update_recipe, delete_recipe, get_recipe_with_details, get_quick_and_easy_recipe
 from app.services.validation_service import validate_recipe_data
 from app.services.category_service import CategoryService
 from app.services.image_service import upload_image_to_s3, delete_image_from_s3
@@ -66,6 +66,8 @@ def list_recipes():
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 9))
     paginated_recipes = get_all_recipes(page, per_page)
+    most_viewed_recipes = get_most_viewed_recipes(limit=3)
+    quick_recipes = get_quick_and_easy_recipe(limit=3)
 
     # Fetch user details for each recipe
     for recipe in paginated_recipes['items']:
@@ -76,6 +78,8 @@ def list_recipes():
                            total_pages=paginated_recipes['total_pages'],
                            current_page=paginated_recipes['current_page'],
                            per_page=per_page,
+                           most_viewed=most_viewed_recipes,
+                           quick_recipes=quick_recipes,
                            title='Recipes | SpiceShare Inc.')
 
 
@@ -89,11 +93,14 @@ def view_recipe(recipe_id):
         comment.user = db.session.query(User).filter_by(id=comment.user_id).first()  # Get the user who made the comment
 
     if recipe:
-        recipe.increment_view_count()  # Increment view count without committing
+        if current_user.is_authenticated:
+            if current_user.id != recipe.user_id:
+                recipe.increment_view_count()  # Increment view count if the viewer is not the author
+            else:
+                # If anonymous, increment view count
+                recipe.increment_view_count()
         recipe.user = db.session.query(User).filter_by(id=recipe.user_id).first()
-        
-        # Commit all changes here
-        db.session.commit()  # Commit after all changes are made
+
         return render_template('recipes/readPages/recipe_detail.html', recipe=recipe, ingredients=ingredients, instructions=instructions, comments=comments, title=f'{recipe.title} - SpiceShare Inc.')
     else:
         flash("Recipe not found.", "error")
@@ -166,11 +173,11 @@ def remove_recipe(recipe_id):
                 if delete_image_from_s3(recipe.image_url):
                     flash("Image deleted", 'success')
                 else:
-                    flash("Failed to delet Image", 'info')
+                    flash("Failed to delete Image", 'info')
 
             delete_recipe(recipe)
             flash("Recipe deleted successfully!", 'info')
-            return redirect(url_for('recipe_routes.recipe_list'))
+            return redirect(url_for('recipe_routes.list_recipes'))
 
         except Exception as e:
             flash(

@@ -2,7 +2,6 @@ from app import db
 from datetime import datetime
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import inspect
 
 
 class Recipe(db.Model):
@@ -22,14 +21,13 @@ class Recipe(db.Model):
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
         'user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     category = db.relationship('Category', backref='recipes', lazy=True)
-    comments = db.relationship('Comment', backref='recipe', lazy=True)
+    comments = db.relationship('Comment', backref='recipe', cascade='all, delete-orphan', lazy=True)
     ingredients = db.relationship(
-        'Ingredient', backref='recipe', lazy='dynamic')
+        'Ingredient', backref='recipe', cascade='all, delete-orphan', lazy='dynamic')
     instructions = db.relationship(
-        'Instruction', backref='recipes', lazy='dynamic')
+        'Instruction', backref='recipes', cascade='all, delete-orphan', lazy='dynamic')
 
     def __repr__(self):
         return f'<Recipe {self.title}>'
@@ -37,4 +35,5 @@ class Recipe(db.Model):
     def increment_view_count(self):
         """Increment the view count without updating the updated_at timestamp."""
         self.view_count += 1
+        db.session.commit()
         # No commit or onupdate manipulation here

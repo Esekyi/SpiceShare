@@ -6,6 +6,7 @@ from app.models.comment import Comment
 from app.models.instruction import Instruction
 from app import db
 import random
+from datetime import datetime
 
 from app.services.pagination_service import paginate
 
@@ -141,6 +142,9 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
         # Remove any extra instructions not submitted in the form
         for extra_idx in range(len(instructions) + 1, len(existing_instructions) + 1):
             db.session.delete(existing_instructions[extra_idx])
+        
+        # Manually updating the `updated_at` field 'cos of view_count
+        recipe.updated_at = datetime.utcnow()
 
         db.session.commit()
 
@@ -191,3 +195,10 @@ def get_recipes_by_user(user_id, page=1, per_page=9):
     """Fetch recipes created by a specific user with pagination."""
     recipes = Recipe.query.filter_by(user_id=user_id).all()
     return paginate(recipes, page, per_page)
+
+def get_quick_and_easy_recipe(limit=5):
+    """Fetch quick and easy recipes based on prep and cook time."""
+    return Recipe.query.filter(
+        (Recipe.prep_time + Recipe.cook_time) <= 30  # Total time should be 30 minutes or less
+    ).order_by(Recipe.updated_at.desc()).limit(limit).all()
+
