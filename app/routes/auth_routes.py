@@ -27,13 +27,18 @@ def login():
 		return redirect(url_for('user_routes.user_profile', user_id=current_user.id))
 
 	if request.method == 'POST':
-		email = request.form["email"]
+		email = request.form.get("email").strip().lower()
 		password = request.form["password"]
 		next_page = request.form.get("next")
+		remember_me = request.form.get('remember_me')
+
+		# Convert checkbox to boolean
+		remember = True if remember_me == "on" else False
+
 		user = User.query.filter_by(email=email).first()
 
 		if user and check_password_hash(user.password_hash, password):
-			login_user(user)
+			login_user(user, remember=remember)
 
 			if next_page and is_safe_url(next_page):
 				return redirect(next_page)

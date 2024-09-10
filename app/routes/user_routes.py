@@ -32,10 +32,11 @@ def register():
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         username = data.get('username')
-        email = data.get('email')
+        email = data.get('email').strip().lower()
         password = data.get('password')
+        confirm_password = request.form.get('confirm_password')
 
-        if not first_name or not last_name or not username or not email or not password:
+        if not first_name or not last_name or not username or not email or not password or not confirm_password:
             flash('All fields are required', 'error')
             return redirect(url_for('user_routes.register'))
 
@@ -56,9 +57,13 @@ def register():
             return redirect(url_for('user_routes.register'))
 
         try:
-            create_user(first_name, last_name, username, email, password)
-            flash('Registration successful, proceed to login!', 'info')
-            return redirect(url_for('auth.login'))
+            if password == confirm_password:
+                create_user(first_name, last_name, username, email, password)
+                flash('Registration successful, proceed to login!', 'info')
+                return redirect(url_for('auth.login'))
+            else:
+                flash('Password and confirm password do not match', 'error')
+
         except Exception as e:
             db.session.rollback()
             flash('An error occured during registeration. Please try again', 'error')
