@@ -147,7 +147,8 @@
 	<!-- Buttons -->
 	<div class="mt-8 flex justify-between">
 		<button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit</button>
-		<button type="button" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">Cancel</button>
+		<button type="button" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+			onclick="window.location.href='{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}'">Cancel</button>
 	</div>
 </form>
 {% endblock %}

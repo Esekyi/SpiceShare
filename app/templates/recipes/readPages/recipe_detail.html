@@ -71,7 +71,13 @@
 				<h2 class="text-2xl font-semibold mb-4 text-indigo-600">Ingredients</h2>
 				<ul class="space-y-2 text-black-700">
 					{% for ingredient in ingredients %}
-						<li>{{ ingredient.name }}</li>
+						<li class="flex items-center">
+							<input type="checkbox" id="ingredient-{{ loop.index }}" class="ingredient-checkbox hidden" />
+							<label for="ingredient-{{ loop.index }}" class="ml-2 cursor-pointer flex items-center">
+								<span class="custom-checkbox inline-block w-4 h-4 border border-gray-500 rounded mr-2"></span>
+								{{ ingredient.name }}
+							</label>
+						</li>
 					{% endfor %}
 				</ul>
 			</div>
@@ -162,7 +168,7 @@
 				{
 					// Show flash message
 					const flashMessageBox = document.createElement('div');
-					flashMessageBox.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 p-4 w-96 bg-info text-white text-center rounded-lg shadow-lg flash-message';
+					flashMessageBox.className = 'fixed top-0 left-1/2 mt-24 transform -translate-x-1/2 p-4 w-96 bg-info text-white text-center rounded-lg shadow-lg flash-message';
 					flashMessageBox.innerHTML = `
                 Recipe link copied to clipboard!
                 <button class="ml-4 font-bold" onclick="this.parentElement.style.display='none';">×</button>
@@ -192,5 +198,27 @@
 					console.error('Failed to copy: ', err);
 				});
 			}
+
+			document.addEventListener("DOMContentLoaded", function ()
+				{
+					// Get all the checkboxes
+					const checkboxes = document.querySelectorAll('.ingredient-checkbox');
+
+					// Add event listener to each checkbox
+					checkboxes.forEach(function (checkbox)
+					{
+						checkbox.addEventListener('change', function ()
+						{
+							const label = this.nextElementSibling;
+							if (this.checked)
+							{
+								label.classList.add('line-through', 'text-gray-500');
+							} else
+							{
+								label.classList.remove('line-through', 'text-gray-500');
+							}
+						});
+					});
+				});
 	</script>
 	{% endblock scripts %}

@@ -15,28 +15,67 @@
 </head>
 
 <body class="bg-gray-100 font-poppins">
-	<header class="p-4 border-b border-gray-200 shadow-md mb-8">
-		<div class="max-w-6xl mx-auto flex justify-between items-center">
-			<div class="text-xl font-bold text-blue-800">SpiceShare</div>
-			<nav>
-				<a href="{{ url_for('main.index')}}" class="text-blue-800 mx-4">Home</a>
-				<a href="{{ url_for('recipe_routes.list_recipes')}}" class="text-blue-800 mx-4">Recipes</a>
-				{% if current_user.is_authenticated %}
-				<a href="{{ url_for('auth.logout')}}" class="text-blue-800">Logout</a>
-				{% else %}
-				<a href="{{ url_for('auth.login')}}" class="text-blue-800 mx-4">Sign In</a>
-				<a href="{{ url_for('user_routes.register')}}" class="text-blue-800">Sign Up</a>
-				{% endif %}
-			</nav>
+	<!-- Navbar -->
+	<nav class="bg-white shadow sticky top-0 z-50">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex justify-between h-16">
+				<div class="flex">
+					<div class="flex-shrink-0 flex items-center">
+						<a href="/" class="text-xl font-bold text-orange-600">SpiceShare</a>
+					</div>
+					<!-- Hamburger Menu (Mobile) -->
+					<div class="-mr-2 flex items-center md:hidden">
+						<button id="mobile-menu-button" type="button"
+							class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500">
+							<svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									d="M4 6h16M4 12h16m-7 6h7"></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+				<!-- Links Section -->
+				<div class="hidden md:flex md:ml-6 md:space-x-8">
+					<a href="{{ url_for('main.index')}}"
+						class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Home</a>
+					<a href="{{ url_for('recipe_routes.add_recipe') }}"
+						class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Add Recipe</a>
+					<a href="{{ url_for('user_routes.user_profile', user_id=current_user.id) }}"
+						class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Profile</a>
+				</div>
+				<!-- Login Button -->
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						{% if current_user.is_authenticated %}
+						<a href="{{ url_for('auth.logout') }}"
+							class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-orange-600 shadow hover:bg-orange-700 focus:outline-none focus:shadow-outline-orange transition duration-150 ease-in-out">Logout</a>
+							{% else %}
+							<a href="{{ url_for('auth.login') }}"
+								class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-orange-600 shadow hover:bg-orange-700 focus:outline-none focus:shadow-outline-orange transition duration-150 ease-in-out">Login</a>
+							{% endif %}
+					</div>
+				</div>
+			</div>
 		</div>
-	</header>
-
+	
+		<!-- Mobile Menu -->
+		<div id="mobile-menu" class="hidden md:hidden">
+			<div class="pt-2 pb-3 space-y-1">
+				<a href="{{ url_for('main.index')}}"
+					class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Home</a>
+				<a href="{{ url_for('recipe_routes.add_recipe') }}"
+					class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Add Recipe</a>
+				<a href="{{ url_for('user_routes.user_profile', user_id=current_user.id) }}"
+					class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Profile</a>
+			</div>
+		</div>
+	</nav>
 
 	{% with messages = get_flashed_messages(with_categories=true) %}
 	{% if messages %}
 	{% for category, message in messages %}
 	<div id="flashMessageBox"
-		class="fixed top-4 left-1/2 transform -translate-x-1/2 p-4 w-96 bg-{{ category }} text-white text-center rounded-lg shadow-lg flash-message">
+		class="fixed top-4 left-1/2 z-50 transform -translate-x-1/2 p-4 w-96 bg-{{ category }} text-white text-center rounded-lg shadow-lg flash-message">
 		<p>{{ message }}</p>
 		{% endfor %}
 	</div>
@@ -44,7 +83,7 @@
 	{% endwith %}
 
 	<!-- Profile Container -->
-	<section class="min-h-screen flex justify-center items-center">
+	<section class="min-h-screen flex justify-center items-center mt-12">
 		<div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
 			<!-- User Information -->
 			<div class="flex justify-between items-center mb-6">
@@ -159,6 +198,15 @@
 		</section>
 		
 		<script src="{{ url_for('static', filename='js/auth_script.js') }}"></script>
+		<script>
+			const mobileMenuButton = document.getElementById('mobile-menu-button');
+			const mobileMenu = document.getElementById('mobile-menu');
+
+			mobileMenuButton.addEventListener('click', () =>
+			{
+				mobileMenu.classList.toggle('hidden');
+			});
+		</script>
 		
 		</body>
 		
