@@ -78,10 +78,10 @@
 			</div>
 			<!-- Links Section -->
 			<div class="hidden md:flex md:ml-6 md:space-x-8">
-				<a href="#about"
-					class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">About</a>
 				<a href="#features"
 					class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Features</a>
+				<a href="#about"
+					class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">About</a>
 				<a href="#testimonials"
 					class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Testimonials</a>
 				<a href="#join"
@@ -101,13 +101,13 @@
 	<!-- Mobile Menu -->
 	<div id="mobile-menu" class="hidden md:hidden">
 		<div class="pt-2 pb-3 space-y-1">
-			<a href="#about"
-				class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">About</a>
 			<a href="#features"
 				class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Features</a>
+			<a href="#about"
+				class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">About</a>
 			<a href="#testimonials"
 				class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Testimonials</a>
-			<a href="#cta"
+			<a href="#join"
 				class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Join
 				Us</a>
 		</div>
@@ -133,12 +133,12 @@
 		</div>
 	</section>
 
-		<!-- About Section -->
-		<section id="about" class="bg-gray-50 py-12">
+		<!-- SpiceShare Section -->
+		<section id="#spiceShare" class="bg-gray-50 py-12">
 			<div class="container mx-auto px-4">
 				<div class="grid md:grid-cols-2 gap-8">
 					<div>
-						<h2 class="text-3xl font-bold text-gray-900 mb-4">About SpiceShare</h2>
+						<h2 class="text-3xl font-bold text-gray-900 mb-4">SpiceShare</h2>
 						<p class="text-lg text-gray-600 mb-4">SpiceShare is a platform where cooking enthusiasts can share
 							and discover recipes from around the world. Whether you're a professional chef or just love to
 							cook, you'll find a place here to connect with like-minded people and expand your culinary
@@ -157,27 +157,100 @@
 
 	<!-- Features Section -->
 	<section id="features" class="bg-white py-12">
-		<div class="container mx-auto px-4 text-center">
-			<h2 class="text-3xl font-bold text-gray-900 mb-8">Features</h2>
-			<div class="grid md:grid-cols-3 gap-8">
-				<div class="p-6 bg-gray-50 rounded-lg shadow-md">
-					<h3 class="text-xl font-bold text-gray-800 mb-4">Diverse Recipes</h3>
-					<p class="text-gray-600">Explore a vast collection of recipes from different cultures and cuisines,
-						carefully curated by our community of food lovers.</p>
+		<div class="container mx-auto px-4">
+			<h2 class="text-3xl font-bold text-gray-900 mb-12 text-center">Explore Our Key Features</h2>
+	
+			<!-- Feature 1 -->
+			<div class="grid md:grid-cols-2 gap-8 mb-12">
+				<div>
+					<img src="{{ url_for('static', filename='images/Device - Macbook Pro.png') }}" alt="Feature 2"
+						class=" object-cover">
 				</div>
-				<div class="p-6 bg-gray-50 rounded-lg shadow-md">
-					<h3 class="text-xl font-bold text-gray-800 mb-4">User-Friendly Interface</h3>
-					<p class="text-gray-600">Easily navigate and find the recipes you're looking for with our intuitive
-						and responsive design.</p>
+				<div class="flex flex-col justify-center">
+					<h3 class="text-2xl font-bold text-gray-900 mb-4">Diverse Recipes</h3>
+					<p class="text-lg text-gray-600 mb-4">Get tailored recipe recommendations based on your preferences,
+						cooking style, and dietary restrictions. Our algorithm ensures that you'll always discover exciting
+						new dishes.</p>
 				</div>
-				<div class="p-6 bg-gray-50 rounded-lg shadow-md">
-					<h3 class="text-xl font-bold text-gray-800 mb-4">Share Your Creations</h3>
-					<p class="text-gray-600">Upload your own recipes and share your culinary masterpieces with the
-						SpiceShare community.</p>
+			</div>
+	
+			<!-- Feature 2 -->
+			<div class="grid md:grid-cols-2 gap-8 mb-12">
+				<div class="md:order-2">
+					<img src="{{ url_for('static', filename='images/frame-ins.png') }}" alt="Feature 2"
+						class=" object-cover">
+				</div>
+				<div class="flex flex-col justify-center md:order-1">
+					<h3 class="text-2xl font-bold text-gray-900 mb-4">Interactive Cooking Instructions</h3>
+					<p class="text-lg text-gray-600 mb-4">Explore a vast collection of recipes from different cultures and cuisines,
+					carefully curated by our community of food lovers.</p>
+				</div>
+			</div>
+	
+			<!-- Feature 3 -->
+			<div class="grid md:grid-cols-2 gap-8">
+				<div>
+					<img src="{{ url_for('static', filename='images/frame-UI.png') }}" alt="Feature 3"
+						class=" object-cover">
+				</div>
+				<div class="flex flex-col justify-center">
+					<h3 class="text-2xl font-bold text-gray-900 mb-4">User-Friendly Interface</h3>
+					<p class="text-lg text-gray-600 mb-4">Easily navigate and find the recipes you're looking for with our intuitive
+					and responsive design. Explore dishes from different cultures, comment, and connect with like-minded food
+						lovers.</p>
 				</div>
 			</div>
 		</div>
 	</section>
+
+		<!-- About Section -->
+		<section id="about" class="py-16 bg-gray-100">
+			<div class="container mx-auto px-4">
+				<h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">About This Project</h2>
+		
+				<p class="text-lg text-gray-700 text-center mb-6">
+					SpiceShare was born from a love of cooking and the desire to make sharing recipes easier.
+					I realized how much knowledge is passed down through families or friends, yet there's always a struggle to
+					organize and share this wealth of information.
+					As a Portfolio Project for <a href="https://www.holbertonschool.com"
+						class="text-indigo-500 hover:text-indigo-700">Holberton School</a>, this platform embodies my journey
+					into full-stack development. It not only represents my passion for coding but also for creating something
+					that brings people together through the joy of food.
+					SpiceShare is designed to simplify the way we store, share, and discover recipes, inspired by the need to
+					centralize these invaluable experiences.
+				</p>
+		
+				<div class="flex justify-center mb-8">
+					<a href="https://github.com/Esekyi/SpiceShare" target="_blank"
+						class="text-indigo-600 font-semibold hover:text-indigo-800">View the GitHub Repository</a>
+				</div>
+		
+				<h3 class="text-2xl font-semibold text-center text-gray-800 mb-4">Meet the Team</h3>
+		
+				<div class="flex justify-center space-x-16">
+					<!-- Team Member -->
+					<div class="text-center">
+						<h4 class="text-xl font-semibold text-gray-800 mb-2">Emmanuel Sekyi</h4>
+						<div class="flex justify-center space-x-4">
+							<a href="https://www.linkedin.com/in/Esekyi" target="_blank"
+								class="text-indigo-500 hover:text-indigo-700">
+								LinkedIn
+							</a>
+							<a href="https://github.com/Esekyi" target="_blank"
+								class="text-indigo-500 hover:text-indigo-700">
+								GitHub
+							</a>
+							<a href="#" target="_blank"
+								class="text-indigo-500 hover:text-indigo-700">
+								Twitter
+							</a>
+						</div>
+					</div>
+					<!-- Repeat for other team members -->
+				</div>
+			</div>
+		</section>
+
 
 
 	<!-- Newsletter Section -->
