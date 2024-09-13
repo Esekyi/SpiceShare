@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Unsubscribe</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f4;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			margin: 0;
+		}
+
+		.container {
+			background-color: white;
+			padding: 40px;
+			text-align: center;
+			border-radius: 10px;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.message {
+			font-size: 20px;
+			margin-bottom: 20px;
+		}
+
+		.redirect {
+			font-size: 16px;
+			margin-top: 20px;
+		}
+
+		.button {
+			background-color: #FF5722;
+			color: white;
+			padding: 10px 20px;
+			text-decoration: none;
+			border-radius: 5px;
+			display: inline-block;
+			margin-top: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="message">{{ get_flashed_messages()[0] }}</div>
+		<div class="message">Sorry to see you go!</div>
+		<div class="redirect">
+			You are being redirected to the home page. If you are not redirected in 10 seconds,
+			<a class="button" href="{{ url_for('recipe_routes.list_recipes') }}">Click here</a>
+		</div>
+	</div>
+	<script>
+		setTimeout(function ()
+		{
+			window.location.href = "{{ url_for('recipe_routes.list_recipes') }}";
+		}, 10000);
+	</script>
+</body>
+
+</html>
