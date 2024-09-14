@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>{% block title %}SpiceShare{% endblock %}</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #f4f4f4;
+			font-family: Arial, sans-serif;
+		}
+
+		.container {
+			width: 100%;
+			max-width: 600px;
+			margin: 0 auto;
+			background-color: #ffffff;
+			padding: 20px;
+		}
+
+		.header {
+			text-align: center;
+			padding: 20px;
+		}
+
+		.header img {
+			max-width: 150px;
+			height: auto;
+		}
+
+		.title {
+			font-size: 24px;
+			color: #333333;
+			margin: 20px 0;
+			text-align: center;
+		}
+
+		.content {
+			padding: 20px;
+			color: #555555;
+		}
+
+		.footer {
+			text-align: center;
+			font-size: 12px;
+			color: #888888;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		.button {
+			display: inline-block;
+			background-color: #FF5722;
+			color: white;
+			padding: 10px 20px;
+			text-decoration: none;
+			border-radius: 5px;
+			margin-top: 20px;
+		}
+
+		a {
+			color: #FF5722;
+			text-decoration: none;
+		}
+	</style>
+</head>
+
+<body>
+	<table class="container" cellpadding="0" cellspacing="0">
+		<tr>
+			<td>
+				<!-- Header with logo -->
+				<div class="header">
+					<img src="{{ url_for('static', filename='logo/Email-templates.svg') }}" alt="SpiceShare Logo">
+				</div>
+
+				<!-- Title Block -->
+				<div class="title">
+					{% block email_title %}{% endblock %}
+				</div>
+
+				<!-- Main Content -->
+				<div class="content">
+					{% block email_content %}{% endblock %}
+				</div>
+
+				<!-- Footer -->
+				<div class="footer">
+					<p>You are receiving this email because you subscribed to SpiceShare.</p>
+					{% if unsubscribe_url %}
+						<p><a href="{{ unsubscribe_url }}">Unsubscribe</a></p>
+					{% endif %}
+					<p>&copy; 2024 SpiceShare. All rights reserved.</p>
+				</div>
+			</td>
+		</tr>
+	</table>
+</body>
+
+</html>

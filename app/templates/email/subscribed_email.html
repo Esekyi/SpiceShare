@@ -1,81 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "email/base_email.html" %}
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>SpiceShare Newsletter</title>
-	<style>
-		body {
-			font-family: Arial, sans-serif;
-			margin: 0;
-			padding: 0;
-			background-color: #f4f4f4;
-		}
+{% block title %}Sorry to See You Go{% endblock %}
 
-		.container {
-			max-width: 600px;
-			margin: 0 auto;
-			background-color: #ffffff;
-			padding: 20px;
-		}
+{% block email_title %}
+Welcome to SpiceShare Newsletter
+{% endblock %}
 
-		.header {
-			background-color: #FF5722;
-			color: white;
-			padding: 20px;
-			text-align: center;
-		}
-
-		.content {
-			padding: 20px;
-		}
-
-		.footer {
-			text-align: center;
-			font-size: 12px;
-			color: #888888;
-			padding: 20px;
-		}
-
-		.button {
-			background-color: #FF5722;
-			color: white;
-			padding: 10px 20px;
-			text-decoration: none;
-			border-radius: 5px;
-			display: inline-block;
-		}
-
-		a {
-			color: #FF5722;
-		}
-	</style>
-</head>
-
-<body>
-	<div class="container">
-		<div class="header">
-			<h1>Welcome to SpiceShare</h1>
-		</div>
-		<div class="content">
-			<h2>Thank you for subscribing to our Newsletter</h2>
-			<p>Hi there,</p>
-			<p>Thank you for subscribing to our newsletter! We’re thrilled to have you on board.</p>
-			<p>Get ready to receive the latest and greatest recipes, cooking tips, and special updates from SpiceShare, delivered
-				straight to your inbox.</p>
-			<p>To explore our collection of recipes, visit our site:</p>
-
-			<a class="button" href="https://www.spiceshare.live/recipes">Browse Recipes</a>
-		</div>
-		{% if unsubscribe_url %}
-		<div class="footer">
-			<p style="text-align: center; color: #888;">You are receiving this email because you subscribed to SpiceShare.</p>
-			<p style="text-align: center; color: #888;">If you did not subscribe, or if you no longer wish to receive emails from us,</p>
-			<p><a href="{{unsubscribe_link}}">Unsubscribe</a></p>
-		</div>
-		{% endif %}
-	</div>
-</body>
-
-</html>
+{% block email_content %}
+<p>Hi there,</p>
+<p>Thank you for subscribing to our newsletter! We’re thrilled to have you on board.</p>
+<p>Get ready to receive the latest and greatest recipes, cooking tips, and special updates from SpiceShare, delivered
+straight to your inbox.</p>
+<p>To explore our collection of recipes, visit our site:</p>
+<a href="{{ url_for('recipe_routes.list_recipes') }}" class="button">Explore Recipes</a>
+{% endblock %}

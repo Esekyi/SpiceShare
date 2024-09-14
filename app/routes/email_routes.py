@@ -1,6 +1,6 @@
 from flask import Blueprint, request, flash, redirect, url_for, render_template
 from app.models.newsletter import Subscriber
-from app.services.email_service import subscribed_to_newsletter
+from app.services.email_service import subscribed_to_newsletter, send_custom_email
 from app import db
 
 email = Blueprint('email', __name__)
@@ -38,12 +38,21 @@ def subscribe():
 
 @email.route('/unsubscribe', methods=['GET','POST'])
 def unsubscribe():
+	"""Send unsubscribe email with resubscribe link"""
 	email = request.args.get('email').strip().lower()
 	existing_email = Subscriber.query.filter_by(email=email, is_active=True).first()
+	resubscribe_url = f"{request.host_url}subscribe?email={email}"
+	context = {'resubscribe_url': resubscribe_url}
 
 	if existing_email and existing_email.is_active:
 		existing_email.is_active = False
 		db.session.commit()
+		send_custom_email(
+			subject="We're sorry to see you go",
+			recipients=[email],
+			template_name='email/unsubscribed_email.html',
+			context=context
+		)
 		flash("You've been unsubscribed.", "success")
 		return render_template('email/unsubscribe.html')
 	else:

@@ -43,7 +43,7 @@ def subscribed_to_newsletter(email):
 	"""Send newsletter subscription email"""
 	html_body = render_template(
 		'email/subscribed_email.html',
-		unsubscribe_url = url_for('email.unsubscribe', email=email, _external=True)
+		unsubscribe_url=url_for('email.unsubscribe', email=email, _external=True)
 	)
 	return send_email(
 		subject='Welcome to SpiceShare',
@@ -60,7 +60,7 @@ def send_newsletter_email(user, recipe, recipe_link, unsubscribe_link=None):
 		'email/newsletter.html',
 		recipe_title=recipe.title,
 		recipe_link=recipe_link,
-		unsubscribe_link=unsubscribe_link or unsubscribe_url,
+		unsubscribe_url=unsubscribe_link or unsubscribe_url,
 		description = recipe.description,
 		recipe_image=recipe.image_url
 	)
