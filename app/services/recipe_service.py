@@ -2,11 +2,10 @@
 from app.models.recipe import Recipe
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
-from app.models.comment import Comment
 from app.models.instruction import Instruction
 from app import db
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.services.pagination_service import paginate
 
@@ -144,7 +143,7 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
             db.session.delete(existing_instructions[extra_idx])
         
         # Manually updating the `updated_at` field 'cos of view_count
-        recipe.updated_at = datetime.utcnow()
+        recipe.updated_at = datetime.now(timezone.utc)
 
         db.session.commit()
 

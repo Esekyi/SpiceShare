@@ -9,6 +9,8 @@ from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.category import Category
 from app.models.comment import Comment
+from app.models.newsletter import Subscriber
+from app.services.email_service import send_newsletter_email
 import os
 
 bp = Blueprint('recipe_routes', __name__)
@@ -42,8 +44,20 @@ def add_recipe():
 
         try:
             send_url = image_url if image_url is not None else ''
-            user_id = current_user.id  # Ensure user_id is set correctly
-            create_recipe(data, user_id, ingredients, instructions, send_url)  # Pass user_id correctly
+            user_id = current_user.id
+            new_recipe = create_recipe(data, user_id, ingredients, instructions, send_url)
+
+            domain = request.host_url
+            recipe_link = url_for('recipe_routes.view_recipe', recipe_id=new_recipe.id, _external=True)
+
+            subscribers = Subscriber.query.filter_by(is_active=True).all()
+            for subscriber in subscribers:
+                unsubscribe_link = f'{domain}/unsubscribe?email={subscriber.email}'
+                try:
+                    send_newsletter_email(user=subscriber, recipe=new_recipe, recipe_link=recipe_link, unsubscribe_link=unsubscribe_link)
+                except Exception as e:
+                    flash(f"Something occured on our side: {str(e)}", "error")
+
             flash("Recipe created successfully!", 'success')
             return redirect(url_for('recipe_routes.list_recipes'))
 

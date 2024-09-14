@@ -6,6 +6,7 @@ from app.services.recipe_service import get_recipes_by_user
 from app.models.recipe import Recipe
 from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
+from app.services.email_service import send_custom_email
 
 # user routes blueprint
 bp = Blueprint('user_routes', __name__)
@@ -58,7 +59,14 @@ def register():
 
         try:
             if password == confirm_password:
-                create_user(first_name, last_name, username, email, password)
+                new_user = create_user(first_name, last_name, username, email, password)
+
+                send_custom_email(
+                    subject="Welcome to SpiceShare!",
+                    recipients=[new_user.email],
+                    template_name='email/welcome_email.html',
+                    context={'first_name': new_user.first_name}
+                )
                 flash('Registration successful, proceed to login!', 'info')
                 return redirect(url_for('auth.login'))
             else:
@@ -66,7 +74,7 @@ def register():
 
         except Exception as e:
             db.session.rollback()
-            flash('An error occured during registeration. Please try again', 'error')
+            flash(f'An error occured during registeration. Please try again', 'error')
             return redirect(url_for('user_routes.register'))
 
     if current_user.is_authenticated:

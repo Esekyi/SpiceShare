@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,9 +13,10 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+        db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     recipes = db.relationship('Recipe', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
 

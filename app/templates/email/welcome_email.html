@@ -1,0 +1,14 @@
+{% extends "email/base_email.html" %}
+
+{% block title %}Welcome to SpiceShare!{% endblock %}
+
+{% block email_title %}
+Welcome to SpiceShare!🤗
+{% endblock %}
+
+{% block email_content %}
+<p>Hi {{first_name}},</p>
+<p>Thank you for joining SpiceShare! We're excited to have you with us. You'll be receiving the latest and greatest
+	recipes, tips, and more!</p>
+<a href="{{ url_for('recipe_routes.list_recipes') }}" class="button">Explore Recipes</a>
+{% endblock %}

@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -20,8 +20,9 @@ class Recipe(db.Model):
         'category.id'), nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
         'user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime, default=datetime.now(timezone.utc))
     category = db.relationship('Category', backref='recipes', lazy=True)
     comments = db.relationship('Comment', backref='recipe', cascade='all, delete-orphan', lazy=True)
     ingredients = db.relationship(

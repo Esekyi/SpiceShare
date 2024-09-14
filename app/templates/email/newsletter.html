@@ -1,0 +1,18 @@
+{% extends "email/base_email.html" %}
+
+{% block title %}New Recipe Alert!{% endblock %}
+
+{% block email_title %}
+New Recipe Just For You!
+{% endblock %}
+
+{% block email_content %}
+<p>Hi there,</p>
+<p>Check out this amazing new recipe: <strong>{{ recipe_title }}</strong>.</p>
+{% if recipe_image %}
+	<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{ recipe_image }}" alt="{{ recipe_title }}"
+		style="width: 100%; height: auto; margin-top: 10px;">
+{% endif %}
+<p>{{ description[:80] }}...</p>
+<a href="{{ recipe_link }}" class="button">View Recipe</a>
+{% endblock %}
