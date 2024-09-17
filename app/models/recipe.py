@@ -35,6 +35,8 @@ class Recipe(db.Model):
 
     def increment_view_count(self):
         """Increment the view count without updating the updated_at timestamp."""
+        if self.view_count is None:  # Check if view_count is None
+            self.view_count = 0      # Initialize to 0 if None
         self.view_count += 1
         db.session.commit()
         # No commit or onupdate manipulation here
