@@ -63,7 +63,26 @@ To run SpiceShare locally, follow these steps:
 	source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 	```
 
-4. Install dependencies:
+4. Create a .env file in the root directory and add these variables
+	```
+	S3_BUCKET_NAME='AWS_S3_bucketName' # for uploads to AWS S3, add your bucket name here
+	AWS_ACCESS_KEY_ID='' # AWS Access key
+	AWS_SECRET_ACCESS_KEY='' # AWS secrete key
+	AWS_REGION='' # AWS region for the S3
+
+	DATABASE_URL='postgresql://postgres:localhost' # Postgress db url
+	SECRET_KEY='WQioiUU-TWIQ-To-Much_TO-6ue22' # Secrete key for Flask and Flsk-WTF
+
+	# Flask-mail variables
+	MAIL_SERVER ='smtp.gmail.com'  # SMTP server address
+	MAIL_PORT =587  # Usually, 465 for SSL or 587 for TLS
+	MAIL_USE_TLS =True  # If you are using port 587 (for TLS), set to True
+	MAIL_USERNAME =''  # Your email address
+	MAIL_PASSWORD =''  # Your email password
+	MAIL_DEFAULT_SENDER ='Your name <your_name@example.com>'
+	```
+
+5. Install dependencies:
 	python and flask
 	```
 	python3 -m pip install -r requirements.txt
@@ -75,12 +94,12 @@ To run SpiceShare locally, follow these steps:
 	yarn install
 	```
 
-5. Set up the database:
+6. Set up the database:
 	```
 	flask db upgrade
 	```
 
-6. Run the application
+7. Run the application
 	```
 	flask db upgrade
 	```
