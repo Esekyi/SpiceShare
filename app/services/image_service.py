@@ -72,7 +72,7 @@ def delete_image_from_s3(image_filename, folder='recipes'):
 	bucket_name = current_app.config['S3_BUCKET_NAME']
 
 	try:
-		s3_client = boto3(
+		s3_client = boto3.client(
 			's3',
 			aws_access_key_id=aws_access_key_id,
 			aws_secret_access_key=aws_secret_access_key,
