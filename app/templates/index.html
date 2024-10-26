@@ -49,6 +49,7 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
 	<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
 	<link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body class="bg-gray-100 font-poppins">
@@ -263,13 +264,16 @@
 		<div class="container mx-auto px-4 text-center text-white">
 			<h2 class="text-3xl font-bold mb-4">Subscribe to Our Newsletter</h2>
 			<p class="text-lg mb-8">Get the latest recipes and cooking tips delivered right to your inbox!</p>
-			<form action="{{ url_for('email.subscribe') }}" method="POST" class="max-w-md mx-auto">
+			<form id="subscribeForm" action="{{ url_for('email.subscribe') }}" method="POST" class="max-w-md mx-auto">
 				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 				<div class="flex flex-col md:flex-row md:space-x-4">
 					<input type="email" name="email" placeholder="Enter your email" required
 						class="w-full px-4 py-3 text-gray-800 rounded-md focus:outline-none">
-					<button type="submit"
-						class="mt-4 md:mt-0 px-8 py-3 bg-white text-orange-600 hover:bg-gray-100 rounded-full text-lg font-medium shadow">Subscribe</button>
+						<!-- Invisible reCAPTCHA badge -->
+						<button
+							class="g-recaptcha mt-4 md:mt-0 px-8 py-3 bg-white text-orange-600 hover:bg-gray-100 rounded-full text-lg font-medium shadow"
+							data-sitekey="6LeKZWwqAAAAAO1f84YSiEcCXrvDeGFrmEy4zc95" 
+							data-callback="onSubmit">Subscribe</button>
 				</div>
 			</form>
 		</div>
@@ -358,6 +362,12 @@
 
 	<!-- JavaScript for Auto-Disappear -->
 	<script>
+				// Google reCAPTCHA callback function
+				function onSubmit(token)
+				{
+					document.getElementById('subscribeForm').submit(); // Submit the form after reCAPTCHA validation
+				}
+			
 		// Function to hide the flash message after 3 seconds
 		setTimeout(function ()
 		{

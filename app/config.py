@@ -33,3 +33,7 @@ class Config:
 	MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 	MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 	MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
+
+	# Google reCAPTCHA
+	RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
+	RECAPTCHA_SECRETE_KEY = os.getenv('RECAPTCHA_SECRETE_KEY')
