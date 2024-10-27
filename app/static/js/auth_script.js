@@ -27,3 +27,8 @@ function togglePasswordVisibility(id, event)
 		button.textContent = "👁️";
 	}
 }
+
+function onSubmit(token)
+{
+	document.querySelector('form').submit(); // Submit the form after reCAPTCHA validation
+}

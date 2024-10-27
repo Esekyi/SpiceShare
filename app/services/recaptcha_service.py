@@ -3,7 +3,7 @@ import requests
 from flask import current_app
 
 
-def verify_recaptcha(recaptcha_response):
+def verify_recaptcha(recaptcha_response: str) -> bool:
     """Verifies the Google reCAPTCHA response.
     
     Args:
@@ -22,7 +22,7 @@ def verify_recaptcha(recaptcha_response):
         'response': recaptcha_response
     }
     response = requests.post(
-        'https://www.google.com/recaptcha/api/siteverify', data=data)
+        current_app.config['RECAPTCHA_VERIFY_URL'], data=data)
 
     if response.status_code == 200:
         result = response.json()

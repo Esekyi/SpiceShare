@@ -4,7 +4,7 @@ from app.services.email_service import subscribed_to_newsletter, send_custom_ema
 from app import db
 from flask_wtf.csrf import CSRFError
 import requests
-import re
+from app.services.recaptcha_service import verify_recaptcha
 import logging
 from email_validator import validate_email, EmailNotValidError
 
@@ -15,32 +15,12 @@ logger = logging.getLogger(__name__)
 def subscribe():
 	"""Subscribe to newsletter"""
 
-	# Get reCaptcha secret key
-	google_recaptcha_secret_key = current_app.config['RECAPTCHA_SECRETE_KEY']
-
 	# Validate recaptcha response
 	recaptcha_response = request.form.get('g-recaptcha-response')
-	data = {
-            'secret': google_recaptcha_secret_key,
-            'response': recaptcha_response
-        }
-	try:
-		response = requests.post(
-			current_app.config['RECAPTCHA_VERIFY_URL'], data=data)
-		 # Log the response for debugging
-		recaptcha_result = response.json()
-		print("reCAPTCHA verification result:", recaptcha_result)
-		response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
-
-		# Check if the reCaptcha request was successful
-		if not response.json().get('success'):
-			flash("CAPTCHA verification failed. Please try again.", "error")
-			return redirect(url_for('main.index'))
-
-	except requests.RequestException as e:
-		logger.error(f"reCAPTCHA validation error: {e}")
-		flash("Error verifying reCAPTCHA. Please try again later.", "error")
+	if not verify_recaptcha(recaptcha_response):
+		flash("CAPTCHA verification failed. Please try again.", "error")
 		return redirect(url_for('main.index'))
+
 
 	try:
 		email = request.form.get('email').strip().lower()

@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_
 from app import db
 from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user_details, create_user, get_user_by_email, get_user_by_username, is_valid_username
 from app.services.recipe_service import get_recipes_by_user
-from app.models.recipe import Recipe
+from app.services.recaptcha_service import verify_recaptcha
 from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
 from app.services.email_service import send_custom_email
@@ -28,7 +28,9 @@ def list_users():
 
 @bp.route('/register', methods=['GET', 'POST'], strict_slashes=False)
 def register():
+
     if request.method == 'POST':
+
         data = request.form
         first_name = data.get('first_name')
         last_name = data.get('last_name')
@@ -36,6 +38,11 @@ def register():
         email = data.get('email').strip().lower()
         password = data.get('password')
         confirm_password = request.form.get('confirm_password')
+        recaptcha_response = request.form.get('g-recaptcha-response')
+
+        if not recaptcha_response or not verify_recaptcha(recaptcha_response):
+            flash("CAPTCHA verification failed. Please try again.", "error")
+            return redirect(url_for('user_routes.register'))
 
         if not first_name or not last_name or not username or not email or not password or not confirm_password:
             flash('All fields are required', 'error')
