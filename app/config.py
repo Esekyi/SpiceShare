@@ -36,4 +36,4 @@ class Config:
 
 	# Google reCAPTCHA
 	RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
-	RECAPTCHA_SECRETE_KEY = os.getenv('RECAPTCHA_SECRETE_KEY')
+	RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
