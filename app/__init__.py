@@ -44,6 +44,10 @@ def create_app():
 	app.register_blueprint(email_routes.email)
 	app.register_blueprint(category_routes.cat_bp, url_prefix='/api')
 	app.register_blueprint(api.api, url_prefix='/api/v1')
+	
+	# Exempt API routes from CSRF protection
+	csrf.exempt(api.api)
+	csrf.exempt(category_routes.cat_bp)
 
     # Custom Error Handlers
 	register_error_handlers(app)
