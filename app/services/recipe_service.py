@@ -42,13 +42,22 @@ def create_recipe(data, user_id, ingredients, instructions, send_url):
         db.session.flush()  # Flush pending transaction to get the recipe ID before committing
 
         # Handle ingredients
-        for ingredient_name in ingredients:
-            if ingredient_name:  # not tolerating any empty ingredient
+        for ingredient_data in ingredients:
+            if isinstance(ingredient_data, dict):
+                # New structure with quantity and unit
                 ingredient = Ingredient(
-                    name=ingredient_name,
+                    name=ingredient_data['name'],
+                    quantity=ingredient_data.get('quantity'),
+                    unit=ingredient_data.get('unit'),
                     recipe_id=new_recipe.id
                 )
-                db.session.add(ingredient)
+            else:
+                # Legacy structure - just ingredient name
+                ingredient = Ingredient(
+                    name=ingredient_data,
+                    recipe_id=new_recipe.id
+                )
+            db.session.add(ingredient)
 
         # Handle each instruction
         for i, instruction in enumerate(instructions):

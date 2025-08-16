@@ -103,14 +103,52 @@
 
 	<!-- Ingredients Section -->
 	<div class="mt-8">
-		<h2 class="text-xl font-semibold text-gray-800 mb-2">Ingredients</h2>
-		<div id="ingredients-list" class="grid grid-cols-2 gap-4 p-4" style="background-color: #e2e8f0;">
+		<h2 class="text-xl font-semibold text-gray-800 mb-4">Ingredients</h2>
+		<p class="text-sm text-gray-600 mb-4">💡 Update quantities and units for better nutrition calculation!</p>
+		<div id="ingredients-list" class="space-y-3 p-4" style="background-color: #e2e8f0;">
 
 			{% for ingredient in ingredients %}
 			<div class="recipe-card">
-				<div class="input-group ingredient-card overflow-hidden whitespace-nowrap">
-					<input type="text" name="ingredients[]" class="w-full overflow-ellipsis p-2 border border-gray-300 rounded" value="{{ ingredient.name }}">
-					<button type="button" class="text-red-500 hover:text-red-700" onclick="removeIngredient(this)">×</button>
+				<div class="ingredient-card bg-white p-3 rounded-lg">
+					<div class="grid grid-cols-12 gap-2 items-center">
+						<div class="col-span-2">
+							<input type="number" step="0.25" name="ingredient_quantities[]"
+								class="w-full p-2 border border-gray-300 rounded text-sm" value="{{ ingredient.quantity or '' }}"
+								min="0">
+							<label class="text-xs text-gray-500">Quantity</label>
+						</div>
+						<div class="col-span-2">
+							<select name="ingredient_units[]" class="w-full p-2 border border-gray-300 rounded text-sm">
+								<option value="">Unit</option>
+								<option value="cup" {% if ingredient.unit=='cup' %}selected{% endif %}>cup</option>
+								<option value="cups" {% if ingredient.unit=='cups' %}selected{% endif %}>cups</option>
+								<option value="tbsp" {% if ingredient.unit=='tbsp' %}selected{% endif %}>tbsp</option>
+								<option value="tsp" {% if ingredient.unit=='tsp' %}selected{% endif %}>tsp</option>
+								<option value="oz" {% if ingredient.unit=='oz' %}selected{% endif %}>oz</option>
+								<option value="lb" {% if ingredient.unit=='lb' %}selected{% endif %}>lb</option>
+								<option value="g" {% if ingredient.unit=='g' %}selected{% endif %}>g</option>
+								<option value="kg" {% if ingredient.unit=='kg' %}selected{% endif %}>kg</option>
+								<option value="ml" {% if ingredient.unit=='ml' %}selected{% endif %}>ml</option>
+								<option value="l" {% if ingredient.unit=='l' %}selected{% endif %}>l</option>
+								<option value="piece" {% if ingredient.unit=='piece' %}selected{% endif %}>piece</option>
+								<option value="pieces" {% if ingredient.unit=='pieces' %}selected{% endif %}>pieces</option>
+								<option value="clove" {% if ingredient.unit=='clove' %}selected{% endif %}>clove</option>
+								<option value="cloves" {% if ingredient.unit=='cloves' %}selected{% endif %}>cloves</option>
+								<option value="slice" {% if ingredient.unit=='slice' %}selected{% endif %}>slice</option>
+								<option value="slices" {% if ingredient.unit=='slices' %}selected{% endif %}>slices</option>
+							</select>
+							<label class="text-xs text-gray-500">Unit</label>
+						</div>
+						<div class="col-span-7">
+							<input type="text" name="ingredients[]" class="w-full p-2 border border-gray-300 rounded"
+								value="{{ ingredient.name }}" required>
+							<label class="text-xs text-gray-500">Ingredient</label>
+						</div>
+						<div class="col-span-1 text-center">
+							<button type="button" class="text-red-500 hover:text-red-700 text-xl" onclick="removeIngredient(this)"
+								title="Remove ingredient">×</button>
+						</div>
+					</div>
 				</div>
 			</div>
 			{% endfor %}

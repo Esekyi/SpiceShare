@@ -61,6 +61,95 @@
 				<p class="mb-8">{{recipe.description}}</p>
 			</div>
 		</section>
+<!-- Nutrition Information Section -->
+{% if nutrition_info %}
+<section class="mb-8">
+	<div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border border-green-200">
+		<div class="flex items-center justify-between mb-4">
+			<h2 class="text-2xl font-semibold text-indigo-600 flex items-center">
+				🥗 Nutrition Facts
+				<span class="ml-2 text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
+					AI Calculated
+				</span>
+			</h2>
+			{% if current_user.is_authenticated and current_user.id == recipe.user_id %}
+			<form method="POST" action="{{ url_for('recipe_routes.recalculate_nutrition', recipe_id=recipe.id) }}"
+				class="inline">
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+				<button type="submit" class="text-sm text-blue-600 hover:text-blue-800 underline">
+					🔄 Recalculate
+				</button>
+			</form>
+			{% endif %}
+		</div>
+
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+			<div class="text-center bg-white p-4 rounded-lg shadow-sm">
+				<div class="text-3xl font-bold text-orange-600">{{ nutrition_summary.facts.calories }}</div>
+				<div class="text-sm text-gray-600">Calories</div>
+				<div class="text-xs text-gray-500">per serving</div>
+			</div>
+			<div class="text-center bg-white p-4 rounded-lg shadow-sm">
+				<div class="text-xl font-semibold text-blue-600">{{ nutrition_summary.facts.protein }}g</div>
+				<div class="text-sm text-gray-600">Protein</div>
+			</div>
+			<div class="text-center bg-white p-4 rounded-lg shadow-sm">
+				<div class="text-xl font-semibold text-yellow-600">{{ nutrition_summary.facts.carbs }}g</div>
+				<div class="text-sm text-gray-600">Carbs</div>
+			</div>
+			<div class="text-center bg-white p-4 rounded-lg shadow-sm">
+				<div class="text-xl font-semibold text-purple-600">{{ nutrition_summary.facts.fat }}g</div>
+				<div class="text-sm text-gray-600">Fat</div>
+			</div>
+		</div>
+
+		<div class="grid grid-cols-3 gap-4 text-center text-sm">
+			<div>
+				<span class="font-medium">Fiber:</span> {{ nutrition_summary.facts.fiber }}g
+			</div>
+			<div>
+				<span class="font-medium">Sodium:</span> {{ nutrition_summary.facts.sodium }}mg
+			</div>
+			<div>
+				<span class="font-medium">Sugar:</span> {{ nutrition_summary.facts.sugar }}g
+			</div>
+		</div>
+
+		<div class="mt-4 flex items-center justify-between text-xs text-gray-500">
+			<span>
+				Confidence:
+				<span
+					class="font-medium {% if nutrition_summary.confidence == 'High' %}text-green-600{% elif nutrition_summary.confidence == 'Medium' %}text-yellow-600{% else %}text-red-600{% endif %}">
+					{{ nutrition_summary.confidence }}
+				</span>
+			</span>
+			<span>
+				Calculated: {{ nutrition_summary.calculated_at.strftime('%d %b %Y') if nutrition_summary.calculated_at
+				else 'Unknown' }}
+			</span>
+		</div>
+	</div>
+</section>
+{% elif recipe %}
+<section class="mb-8">
+	<div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+		<div class="flex items-center">
+			<div class="text-yellow-600 mr-3">⚡</div>
+			<div>
+				<h3 class="font-semibold text-gray-800">Nutrition Calculation in Progress</h3>
+				<p class="text-sm text-gray-600 mt-1">
+					Our AI is analyzing the ingredients to provide detailed nutrition information.
+					{% if current_user.is_authenticated and current_user.id == recipe.user_id %}
+					<a href="{{ url_for('recipe_routes.recalculate_nutrition', recipe_id=recipe.id) }}"
+						class="text-blue-600 hover:text-blue-800 underline">Click here to retry</a>
+					{% else %}
+					Please check back shortly!
+					{% endif %}
+				</p>
+			</div>
+		</div>
+	</div>
+</section>
 		{% endif %}
 
 		<!-- Ingredients and Directions Section -->
@@ -75,7 +164,16 @@
 							<input type="checkbox" id="ingredient-{{ loop.index }}" class="ingredient-checkbox hidden" />
 							<label for="ingredient-{{ loop.index }}" class="ml-2 cursor-pointer flex items-center">
 								<span class="custom-checkbox inline-block w-4 h-4 border border-gray-500 rounded mr-2"></span>
-								{{ ingredient.name }}
+								<span class="flex-1">
+									{% if ingredient.quantity and ingredient.unit %}
+									<span class="font-medium text-indigo-600">{{ ingredient.quantity }} {{ ingredient.unit }}</span> {{ ingredient.name
+									}}
+									{% elif ingredient.quantity %}
+									<span class="font-medium text-indigo-600">{{ ingredient.quantity }}</span> {{ ingredient.name }}
+									{% else %}
+										{{ ingredient.name }}
+									{% endif %}
+									</span>
 							</label>
 						</li>
 					{% endfor %}
@@ -152,7 +250,7 @@
 			{% endif %}
 		</div>
 
-
+	{% endif %}
 	</main>
 
 

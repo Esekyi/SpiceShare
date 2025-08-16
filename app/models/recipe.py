@@ -1,7 +1,10 @@
 from app import db
 from datetime import datetime, timezone
 import uuid
+import logging
 from sqlalchemy.dialects.postgresql import UUID
+
+logger = logging.getLogger(__name__)
 
 
 class Recipe(db.Model):
@@ -16,6 +19,11 @@ class Recipe(db.Model):
     servings = db.Column(db.Integer)
     image_url = db.Column(db.String(255))
     view_count = db.Column(db.Integer, default=0)
+    
+    # Nutrition tracking fields
+    nutrition_calculated = db.Column(db.Boolean, default=False)
+    nutrition_last_updated = db.Column(db.DateTime)
+    
     category_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
         'category.id'), nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey(
@@ -40,3 +48,40 @@ class Recipe(db.Model):
         self.view_count += 1
         db.session.commit()
         # No commit or onupdate manipulation here
+    
+    def needs_nutrition_calculation(self):
+        """Check if recipe needs nutrition calculation"""
+        if not self.nutrition_calculated:
+            return True
+        
+        # Check if nutrition data is stale (older than 7 days)
+        try:
+            if self.nutrition_info and self.nutrition_info.is_stale():
+                return True
+        except Exception as e:
+            # If there's any error with staleness check, assume we need recalculation
+            logger.warning(f"Error checking nutrition staleness for recipe {self.id}: {e}")
+            return True
+            
+        return False
+    
+    def get_ingredients_for_ai(self):
+        """Format ingredients for AI nutrition calculation"""
+        ingredients_list = []
+        for ingredient in self.ingredients:
+            ingredients_list.append({
+                'name': ingredient.name,
+                'quantity': ingredient.quantity or 1.0,
+                'unit': ingredient.unit or 'piece'
+            })
+        return ingredients_list
+    
+    def mark_nutrition_calculated(self):
+        """Mark recipe as having calculated nutrition"""
+        self.nutrition_calculated = True
+        self.nutrition_last_updated = datetime.now(timezone.utc)
+    
+    def reset_nutrition_calculation(self):
+        """Reset nutrition calculation status"""
+        self.nutrition_calculated = False
+        self.nutrition_last_updated = None
