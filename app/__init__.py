@@ -21,8 +21,8 @@ csrf = CSRFProtect()
 mail = Mail()
 
 def create_app():
-	if not os.environ.get('FLASK_DEBUG'):
-		build_css()
+	# if not os.environ.get('FLASK_DEBUG'):
+	# 	build_css()
 
 	app = Flask(__name__)
 	app.config.from_object(Config)
