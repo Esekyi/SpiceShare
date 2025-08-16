@@ -5,11 +5,12 @@ SpiceShare is a recipe-sharing platform for home cooks and food enthusiasts to s
 - Deployed site: [SpiceShare](https://www.spiceshare.live)
 - Blog Article: [Read about SpiceShare's Development Journey](https://esekyi.medium.com/introducing-spiceshare-a-recipe-sharing-platform-63f22e078ba9)
 - Author:
-	* [Emmanuel Sekyi](https://linkedin.com/in/Esekyi)
+	- [Emmanuel Sekyi](https://linkedin.com/in/Esekyi)
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
-2. [Features](#features)
+2. [Core Features](#core-features)
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation️)
 5. [Usage](#usage️)
