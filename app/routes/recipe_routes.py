@@ -1,10 +1,11 @@
-from flask import Blueprint, request, url_for, render_template, flash, redirect
+from flask import Blueprint, request, url_for, render_template, flash, redirect, jsonify
 from app import db
 from app.services.recipe_service import get_all_recipes, get_recipe_by_id, create_recipe, get_most_viewed_recipes, update_recipe, delete_recipe, get_recipe_with_details, get_quick_and_easy_recipe
 from app.services.validation_service import validate_recipe_data
 from app.services.category_service import CategoryService
 from app.services.image_service import upload_image_to_s3, delete_image_from_s3
 from app.services.comment_service import CommentService
+from app.services.nutrition_service import NutritionService
 from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.category import Category
@@ -12,6 +13,9 @@ from app.models.comment import Comment
 from app.models.newsletter import Subscriber
 from app.services.email_service import send_newsletter_email
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 bp = Blueprint('recipe_routes', __name__)
 
@@ -21,7 +25,24 @@ bp = Blueprint('recipe_routes', __name__)
 def add_recipe():
     if request.method == 'POST':
         data = request.form.to_dict()  # ensuring form data comes as to dictionary.
-        ingredients = request.form.getlist('ingredients[]')
+        
+        # Parse ingredients with quantities and units
+        ingredient_names = request.form.getlist('ingredients[]')
+        ingredient_quantities = request.form.getlist('ingredient_quantities[]')
+        ingredient_units = request.form.getlist('ingredient_units[]')
+        
+        # Combine ingredient data
+        ingredients = []
+        for i, name in enumerate(ingredient_names):
+            if name.strip():  # Only add non-empty ingredients
+                quantity = ingredient_quantities[i] if i < len(ingredient_quantities) else None
+                unit = ingredient_units[i] if i < len(ingredient_units) else None
+                ingredients.append({
+                    'name': name.strip(),
+                    'quantity': float(quantity) if quantity and quantity.strip() else None,
+                    'unit': unit.strip() if unit and unit.strip() else None
+                })
+        
         instructions = request.form.getlist('instructions[]')
         image = request.files.get('image')
 
@@ -47,6 +68,18 @@ def add_recipe():
             user_id = current_user.id
             new_recipe = create_recipe(data, user_id, ingredients, instructions, send_url)
 
+            # Auto-calculate nutrition for new recipe
+            try:
+                logger.info(f"Calculating nutrition for new recipe: {new_recipe.id}")
+                nutrition_info = NutritionService.calculate_and_store_nutrition(new_recipe)
+                if nutrition_info:
+                    flash("Recipe created with nutrition information!", 'success')
+                else:
+                    flash("Recipe created successfully! Nutrition calculation will be available shortly.", 'info')
+            except Exception as nutrition_error:
+                logger.error(f"Nutrition calculation failed for recipe {new_recipe.id}: {nutrition_error}")
+                flash("Recipe created successfully! Nutrition calculation failed but can be recalculated later.", 'warning')
+
             # domain = request.host_url
             # recipe_link = url_for('recipe_routes.view_recipe', recipe_id=new_recipe.id, _external=True)
 
@@ -59,7 +92,7 @@ def add_recipe():
             #         flash(f"Something occured on our side: {str(e)}", "error")
 
             flash("Recipe created successfully!", 'success')
-            return redirect(url_for('recipe_routes.list_recipes'))
+            return redirect(url_for('recipe_routes.view_recipe', recipe_id=new_recipe.id))
 
         except Exception as e:
             # Rollback db session in case of an error
@@ -115,7 +148,24 @@ def view_recipe(recipe_id):
             recipe.increment_view_count()
         recipe.user = db.session.query(User).filter_by(id=recipe.user_id).first()
 
-        return render_template('recipes/readPages/recipe_detail.html', recipe=recipe, ingredients=ingredients, instructions=instructions, comments=comments, title=f'{recipe.title} - SpiceShare Inc.')
+        # Get or calculate nutrition information
+        nutrition_info = None
+        nutrition_summary = None
+        try:
+            nutrition_info = NutritionService.get_or_calculate_nutrition(recipe_id)
+            if nutrition_info:
+                nutrition_summary = NutritionService.get_nutrition_summary(recipe_id)
+        except Exception as e:
+            logger.error(f"Error getting nutrition info for recipe {recipe_id}: {e}")
+
+        return render_template('recipes/readPages/recipe_detail.html', 
+                             recipe=recipe, 
+                             ingredients=ingredients, 
+                             instructions=instructions, 
+                             comments=comments,
+                             nutrition_info=nutrition_info,
+                             nutrition_summary=nutrition_summary,
+                             title=f'{recipe.title} - SpiceShare Inc.')
     else:
         flash("Recipe not found.", "error")
         return redirect(url_for('recipe_routes.list_recipes'))
@@ -130,7 +180,23 @@ def edit_recipe(recipe_id):
         if recipe and recipe.user_id == current_user.id:
             data = request.form.to_dict()  # Ensure this is a dictionary
 
-            form_ingredients = request.form.getlist('ingredients[]')
+            # Parse ingredients with quantities and units for editing
+            ingredient_names = request.form.getlist('ingredients[]')
+            ingredient_quantities = request.form.getlist('ingredient_quantities[]')
+            ingredient_units = request.form.getlist('ingredient_units[]')
+            
+            # Combine ingredient data
+            form_ingredients = []
+            for i, name in enumerate(ingredient_names):
+                if name.strip():  # Only add non-empty ingredients
+                    quantity = ingredient_quantities[i] if i < len(ingredient_quantities) else None
+                    unit = ingredient_units[i] if i < len(ingredient_units) else None
+                    form_ingredients.append({
+                        'name': name.strip(),
+                        'quantity': float(quantity) if quantity and quantity.strip() else None,
+                        'unit': unit.strip() if unit and unit.strip() else None
+                    })
+            
             form_instructions = request.form.getlist('instructions[]')
             image = request.files.get('image')
 
@@ -158,7 +224,19 @@ def edit_recipe(recipe_id):
 
             try:
                 update_recipe(recipe, data, form_ingredients, form_instructions, image_url)  # Ensure data is a dict
-                flash(f"Recipe {recipe.title} updated successfully!", 'success')
+                
+                # Recalculate nutrition after recipe update
+                try:
+                    logger.info(f"Recalculating nutrition for updated recipe: {recipe_id}")
+                    nutrition_info = NutritionService.recalculate_nutrition(recipe_id, force=True)
+                    if nutrition_info:
+                        flash(f"Recipe {recipe.title} updated with nutrition information!", 'success')
+                    else:
+                        flash(f"Recipe {recipe.title} updated! Nutrition calculation will be available shortly.", 'info')
+                except Exception as nutrition_error:
+                    logger.error(f"Nutrition recalculation failed for recipe {recipe_id}: {nutrition_error}")
+                    flash(f"Recipe {recipe.title} updated! Nutrition calculation failed but can be recalculated later.", 'warning')
+                
                 return redirect(url_for('recipe_routes.view_recipe', recipe_id=recipe_id))
 
             except Exception as e:
@@ -166,7 +244,7 @@ def edit_recipe(recipe_id):
                 db.session.rollback()
                 flash(f"An error occurred while updating the recipe: {str(e)}", "error")
                 # delete the image if it was uploaded
-                if image_url:
+                if image_url and image_url != recipe.image_url:
                     delete_image_from_s3(image_url)
                 return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
@@ -243,3 +321,80 @@ def delete_comment(comment_id):
     else:
         flash("Comment not found or you are not authorized to delete it.", "error")
     return redirect(url_for('recipe_routes.view_recipe', recipe_id=comment.recipe_id))
+
+
+# Nutrition-related endpoints
+@bp.route('/recipes/<uuid:recipe_id>/recalculate-nutrition', methods=['POST'])
+@login_required
+def recalculate_nutrition(recipe_id):
+    """Force recalculation of nutrition data for a recipe"""
+    try:
+        recipe = get_recipe_by_id(recipe_id)
+        
+        if not recipe:
+            flash("Recipe not found.", "error")
+            return redirect(url_for('recipe_routes.list_recipes'))
+        
+        # Check if user owns the recipe
+        if recipe.user_id != current_user.id:
+            flash("You can only recalculate nutrition for your own recipes.", "error")
+            return redirect(url_for('recipe_routes.view_recipe', recipe_id=recipe_id))
+        
+        logger.info(f"Manual nutrition recalculation requested for recipe {recipe_id} by user {current_user.id}")
+        
+        # Force recalculation
+        nutrition_info = NutritionService.recalculate_nutrition(recipe_id, force=True)
+        
+        if nutrition_info:
+            flash("Nutrition information updated successfully!", "success")
+        else:
+            flash("Failed to calculate nutrition information. Please try again later.", "error")
+        
+        return redirect(url_for('recipe_routes.view_recipe', recipe_id=recipe_id))
+        
+    except Exception as e:
+        logger.error(f"Error in manual nutrition recalculation for recipe {recipe_id}: {e}")
+        flash("An error occurred while recalculating nutrition information.", "error")
+        return redirect(url_for('recipe_routes.view_recipe', recipe_id=recipe_id))
+
+
+@bp.route('/api/recipes/<uuid:recipe_id>/nutrition', methods=['GET'])
+def get_recipe_nutrition_api(recipe_id):
+    """API endpoint to get nutrition information for a recipe"""
+    try:
+        nutrition_summary = NutritionService.get_nutrition_summary(recipe_id)
+        
+        if nutrition_summary:
+            return jsonify({
+                'success': True,
+                'nutrition': nutrition_summary
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Nutrition information not available'
+            }), 404
+            
+    except Exception as e:
+        logger.error(f"API error getting nutrition for recipe {recipe_id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Internal server error'
+        }), 500
+
+
+@bp.route('/api/nutrition/status', methods=['GET'])
+def get_nutrition_service_status():
+    """API endpoint to get nutrition service status"""
+    try:
+        status = NutritionService.get_service_status()
+        return jsonify({
+            'success': True,
+            'status': status
+        })
+    except Exception as e:
+        logger.error(f"Error getting nutrition service status: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to get service status'
+        }), 500

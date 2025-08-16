@@ -5,3 +5,4 @@ from app.models.comment import Comment
 from app.models.ingredient import Ingredient
 from app.models.instruction import Instruction
 from app.models.newsletter import Subscriber
+from app.models.nutrition_info import NutritionInfo

@@ -37,3 +37,8 @@ class Config:
 	# Google reCAPTCHA
 	RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 	RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
+
+	# Google Gemini API for nutrition calculation
+	GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+	GEMINI_MODEL = os.getenv('GEMINI_MODEL') or 'gemini-2.0-flash-001'
+	NUTRITION_CACHE_DURATION = 7  # days before recalculating nutrition

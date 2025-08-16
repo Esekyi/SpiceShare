@@ -64,11 +64,49 @@ function addIngredient()
 	const ingredientCard = document.createElement('div');
 	ingredientCard.className = 'recipe-card';
 	ingredientCard.innerHTML = `
-                <div class="input-group ingredient-card">
-                    <input type="text" name="ingredients[]" class="w-full p-2 border border-gray-300 rounded" placeholder="New ingredient">
-                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removeIngredient(this)">×</button>
-                </div>
-            `;
+		<div class="ingredient-card bg-gray-50 p-3 rounded-lg">
+			<div class="grid grid-cols-12 gap-2 items-center">
+				<div class="col-span-2">
+					<input type="number" step="0.25" name="ingredient_quantities[]"
+						   class="w-full p-2 border border-gray-300 rounded text-sm"
+						   placeholder="1" min="0">
+					<label class="text-xs text-gray-500">Quantity</label>
+				</div>
+				<div class="col-span-2">
+					<select name="ingredient_units[]" class="w-full p-2 border border-gray-300 rounded text-sm">
+						<option value="">Unit</option>
+						<option value="cup">cup</option>
+						<option value="cups">cups</option>
+						<option value="tbsp">tbsp</option>
+						<option value="tsp">tsp</option>
+						<option value="oz">oz</option>
+						<option value="lb">lb</option>
+						<option value="g">g</option>
+						<option value="kg">kg</option>
+						<option value="ml">ml</option>
+						<option value="l">l</option>
+						<option value="piece">piece</option>
+						<option value="pieces">pieces</option>
+						<option value="clove">clove</option>
+						<option value="cloves">cloves</option>
+						<option value="slice">slice</option>
+						<option value="slices">slices</option>
+					</select>
+					<label class="text-xs text-gray-500">Unit</label>
+				</div>
+				<div class="col-span-7">
+					<input type="text" name="ingredients[]"
+						   class="w-full p-2 border border-gray-300 rounded"
+						   placeholder="ingredient name" required>
+					<label class="text-xs text-gray-500">Ingredient</label>
+				</div>
+				<div class="col-span-1 text-center">
+					<button type="button" class="text-red-500 hover:text-red-700 text-xl"
+							onclick="removeIngredient(this)" title="Remove ingredient">×</button>
+				</div>
+			</div>
+		</div>
+    `;
 	document.getElementById('ingredients-list').appendChild(ingredientCard);
 }
 
