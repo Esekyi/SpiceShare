@@ -41,7 +41,7 @@
 				</div>
 				<!-- Links Section -->
 				<div class="hidden md:flex md:ml-6 md:space-x-8">
-					<a href="{{ url_for('main.index')}}"
+					<a href="{{ url_for('main_routes.index')}}"
 						class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Home</a>
 					<a href="{{ url_for('recipe_routes.add_recipe') }}"
 						class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 hover:text-orange-600 hover:border-orange-600">Add Recipe</a>
@@ -66,7 +66,7 @@
 		<!-- Mobile Menu -->
 		<div id="mobile-menu" class="hidden md:hidden">
 			<div class="pt-2 pb-3 space-y-1">
-				<a href="{{ url_for('main.index')}}"
+				<a href="{{ url_for('main_routes.index')}}"
 					class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Home</a>
 				<a href="{{ url_for('recipe_routes.add_recipe') }}"
 					class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-600 hover:text-orange-600">Add Recipe</a>
@@ -165,7 +165,7 @@
 					{% for recipe in recipes %}
 					<div class="bg-white p-4 rounded-lg shadow-md">
 						{% if recipe.image_url %}
-						<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{ recipe.image_url }}" alt="{{ recipe.title }}"
+						<img src="{{ recipe.image_url | recipe_image_url }}" alt="{{ recipe.title }}"
 							class="w-full h-48 object-cover">
 						{% else %}
 						<img src="{{url_for('static', filename='images/no-image-available.png') }}" alt="{{ recipe.title }}"

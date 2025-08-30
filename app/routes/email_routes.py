@@ -19,7 +19,7 @@ def subscribe():
 	recaptcha_response = request.form.get('g-recaptcha-response')
 	if not verify_recaptcha(recaptcha_response):
 		flash("CAPTCHA verification failed. Please try again.", "error")
-		return redirect(url_for('main.index'))
+		return redirect(url_for('main_routes.index'))
 
 
 	try:
@@ -37,7 +37,7 @@ def subscribe():
 				flash("You've been re-subscribed!", "success")
 			else:
 				flash("You're already a subscriber!", "info")
-			return redirect(url_for('main.index'))
+			return redirect(url_for('main_routes.index'))
 
 		else:
 			subscribed_to_newsletter(email)
@@ -45,22 +45,22 @@ def subscribe():
 			db.session.add(user)
 			db.session.commit()
 			flash("Subscription successful. Check your inbox.", "success")
-			return redirect(url_for('main.index'))
+			return redirect(url_for('main_routes.index'))
 
 	except EmailNotValidError as e:
 		flash("Invalid email address. Please enter a valid email.", "error")
-		return redirect(url_for('main.index'))
+		return redirect(url_for('main_routes.index'))
 
 	except CSRFError as e:
 		logger.error(f"CSRF Error: {e}")
 		flash("Invalid CSRF token. Please refresh and try again.", "error")
-		return redirect(url_for('main.index'))
+		return redirect(url_for('main_routes.index'))
 
 	except Exception as e:
 		logger.error(f"Subscription failed: {e}")
 		db.session.rollback()
 		flash(f"Failed to subscribe: {str(e)}", "error")
-		return redirect(url_for('main.index'))
+		return redirect(url_for('main_routes.index'))
 
 
 

@@ -19,7 +19,7 @@
 		<div class="bg-white shadow-lg rounded-lg overflow-hidden">
 			<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
 				{% if recipe.image_url %}
-				<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{recipe.title}}"
+				<img src="{{ recipe.image_url | recipe_image_url }}" alt="{{recipe.title}}"
 					class="w-full h-full object-cover" loading="lazy">
 				{% else %}
 				<span class="text-gray-500">No Image Available</span> <!-- Optional text for no image -->
@@ -67,7 +67,7 @@
 		onclick="window.location.href='{{ url_for('recipe_routes.view_recipe', recipe_id=recipe.id) }}';">
 		<div class="h-40 bg-gray-200 flex items-center justify-center relative group">
 			{% if recipe.image_url %}
-			<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}"
+			<img src="{{ recipe.image_url | recipe_image_url }}"
 				alt="{{recipe.title}}"
 				class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-80"
 				loading="lazy">
@@ -96,7 +96,7 @@
 		<div class="bg-white shadow-lg rounded-lg overflow-hidden">
 			<div class="h-40 bg-gray-200 flex items-center justify-center"> <!-- Default background -->
 				{% if recipe.image_url %}
-				<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" alt="{{recipe.title}}"
+				<img src="{{ recipe.image_url | recipe_image_url }}" alt="{{recipe.title}}"
 					class="w-full h-full object-cover" loading="lazy">
 				{% else %}
 				<span class="text-gray-500">No Image Available</span> <!-- Optional text for no image -->

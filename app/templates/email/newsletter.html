@@ -10,7 +10,7 @@ New Recipe Just For You!
 <p>Hi there,</p>
 <p>Check out this amazing new recipe: <strong>{{ recipe_title }}</strong>.</p>
 {% if recipe_image %}
-	<img src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{ recipe_image }}" alt="{{ recipe_title }}"
+	<img src="{{ recipe_image | recipe_image_url }}" alt="{{ recipe_title }}"
 		style="width: 100%; height: auto; margin-top: 10px;">
 {% endif %}
 <p>{{ description[:80] }}...</p>

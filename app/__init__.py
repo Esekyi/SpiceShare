@@ -26,6 +26,9 @@ def create_app():
 
 	app = Flask(__name__)
 	app.config.from_object(Config)
+	
+	# Set maximum file upload size
+	app.config['MAX_CONTENT_LENGTH'] = app.config.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024)
 
 	# initialize these ext
 	db.init_app(app)
@@ -48,6 +51,9 @@ def create_app():
 	# Exempt API routes from CSRF protection
 	csrf.exempt(api.api)
 	csrf.exempt(category_routes.cat_bp)
+
+	# Register custom template filters
+	register_template_filters(app)
 
     # Custom Error Handlers
 	register_error_handlers(app)
@@ -83,3 +89,13 @@ def register_error_handlers(app):
     @app.errorhandler(400)
     def forbidden_error(error):
         return render_template('error.html', error_code=400, error_message="Bad Request"), 400
+
+
+def register_template_filters(app):
+	"""Register custom Jinja2 template filters."""
+	
+	@app.template_filter('recipe_image_url')
+	def recipe_image_url_filter(image_filename):
+		"""Generate the appropriate URL for a recipe image based on upload method."""
+		from app.services.image_service import get_image_url
+		return get_image_url(image_filename)

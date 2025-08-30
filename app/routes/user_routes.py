@@ -129,10 +129,10 @@ def delete_user_profile(user_id):
     if user and user.id == current_user.id:
         delete_user(user)
         flash('Profile deleted succesfully.', 'success')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main_routes.index'))
     else:
         flash('You are not authorized to delete this profile.', 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main_routes.index'))
     
 
 @bp.route('/user/<uuid:user_id>/profile', methods=['GET'], strict_slashes=False)

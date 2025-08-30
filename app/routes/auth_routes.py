@@ -51,7 +51,7 @@ def login():
 				return redirect(next_page)
 			else:
 				flash('logged in', 'success')
-				return redirect(url_for('main.index'))
+				return redirect(url_for('main_routes.index'))
 
 		flash('Invalid Credentials', 'warning')
 

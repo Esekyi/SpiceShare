@@ -3,7 +3,7 @@ from app import db
 from app.services.recipe_service import get_all_recipes, get_recipe_by_id, create_recipe, get_most_viewed_recipes, update_recipe, delete_recipe, get_recipe_with_details, get_quick_and_easy_recipe
 from app.services.validation_service import validate_recipe_data
 from app.services.category_service import CategoryService
-from app.services.image_service import upload_image_to_s3, delete_image_from_s3
+from app.services.image_service import upload_image, delete_image, get_image_url
 from app.services.comment_service import CommentService
 from app.services.nutrition_service import NutritionService
 from flask_login import login_required, current_user
@@ -56,7 +56,7 @@ def add_recipe():
         image_url = None
         if image:
             try:
-                image_url = upload_image_to_s3(image)
+                image_url = upload_image(image)
                 flash("Image was uploaded", "success")
             except ValueError as e:
                 flash(str(e), 'error')
@@ -100,7 +100,7 @@ def add_recipe():
             flash(f"An error occurred while creating the recipe: {str(e)}", "error")
             # If recipe creation fails, delete the uploaded image if it was uploaded
             if image_url:
-                delete_image_from_s3(image_url)  # delete the image if it was uploaded
+                delete_image(image_url)  # delete the image if it was uploaded
             return redirect(url_for('recipe_routes.add_recipe'))
 
 
@@ -216,7 +216,11 @@ def edit_recipe(recipe_id):
             image_url = recipe.image_url
             if image:
                 try:
-                    image_url = upload_image_to_s3(image)
+                    # Delete old image if it exists and we're uploading a new one
+                    if recipe.image_url:
+                        delete_image(recipe.image_url)
+                    
+                    image_url = upload_image(image)
                     flash("Image updated successfully", "success")
                 except ValueError as e:
                     flash(str(e), 'error')
@@ -245,7 +249,7 @@ def edit_recipe(recipe_id):
                 flash(f"An error occurred while updating the recipe: {str(e)}", "error")
                 # delete the image if it was uploaded
                 if image_url and image_url != recipe.image_url:
-                    delete_image_from_s3(image_url)
+                    delete_image(image_url)
                 return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
     categories = CategoryService.get_all_categories()
@@ -262,7 +266,7 @@ def remove_recipe(recipe_id):
     if recipe and recipe.user_id == current_user.id:
         try:
             if recipe.image_url:
-                if delete_image_from_s3(recipe.image_url):
+                if delete_image(recipe.image_url):
                     flash("Image deleted", 'success')
                 else:
                     flash("Failed to delete Image", 'info')

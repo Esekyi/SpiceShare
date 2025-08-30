@@ -22,7 +22,7 @@
 		<div class="image-container">
 			{% if recipe.image_url %}
 				<img id="image-preview" class="image-preview" alt="Image Preview" 
-				src="https://recipe-files.s3.eu-north-1.amazonaws.com/recipes/{{recipe.image_url}}" style="display: block;">
+				src="{{ recipe.image_url | recipe_image_url }}" style="display: block;">
 			{% else %}
 				<img id="image-preview" class="image-preview" alt="Image Preview">
 			{% endif %}

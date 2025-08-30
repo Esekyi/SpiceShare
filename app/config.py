@@ -42,3 +42,10 @@ class Config:
 	GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 	GEMINI_MODEL = os.getenv('GEMINI_MODEL') or 'gemini-2.0-flash-001'
 	NUTRITION_CACHE_DURATION = 7  # days before recalculating nutrition
+
+	# Local Image Upload Configuration
+	UPLOAD_METHOD = os.getenv('UPLOAD_METHOD') or 'local'  # 'local' or 's3'
+	UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+	RECIPE_IMAGE_FOLDER = os.path.join(UPLOAD_FOLDER, 'recipe_images')
+	MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+	ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
