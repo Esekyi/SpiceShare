@@ -108,26 +108,42 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
             'servings') else recipe.servings
         recipe.image_url = image_url
 
-        # Update ingredients
-        existing_ingredients = {
-            ing.id: ing for ing in Ingredient.query.filter_by(recipe_id=recipe.id).all()
-        }
-        for idx, ingredient_name in enumerate(ingredients):
-            if ingredient_name:
-                ingredient_id = list(existing_ingredients.keys())[
-                    idx] if idx < len(existing_ingredients) else None
-                if ingredient_id:
+        # Update ingredients - handle both old and new format
+        existing_ingredients = list(Ingredient.query.filter_by(recipe_id=recipe.id).all())
+        
+        # Process ingredients based on format (dict or string)
+        for idx, ingredient_data in enumerate(ingredients):
+            if ingredient_data:  # Skip empty ingredients
+                # Handle new format (dict with name, quantity, unit)
+                if isinstance(ingredient_data, dict):
+                    ingredient_name = ingredient_data['name']
+                    ingredient_quantity = ingredient_data.get('quantity')
+                    ingredient_unit = ingredient_data.get('unit')
+                else:
+                    # Handle old format (just ingredient name)
+                    ingredient_name = ingredient_data
+                    ingredient_quantity = None
+                    ingredient_unit = None
+                
+                if idx < len(existing_ingredients):
                     # Update existing ingredient
-                    existing_ingredients[ingredient_id].name = ingredient_name
+                    existing_ingredient = existing_ingredients[idx]
+                    existing_ingredient.name = ingredient_name
+                    existing_ingredient.quantity = ingredient_quantity
+                    existing_ingredient.unit = ingredient_unit
                 else:
                     # Add new ingredient
                     new_ingredient = Ingredient(
-                        name=ingredient_name, recipe_id=recipe.id)
+                        name=ingredient_name,
+                        quantity=ingredient_quantity,
+                        unit=ingredient_unit,
+                        recipe_id=recipe.id
+                    )
                     db.session.add(new_ingredient)
 
         # Remove any extra ingredients not submitted in the form
         for extra_idx in range(len(ingredients), len(existing_ingredients)):
-            db.session.delete(list(existing_ingredients.values())[extra_idx])
+            db.session.delete(existing_ingredients[extra_idx])
 
 
         # Update instructions

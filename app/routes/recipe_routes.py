@@ -214,12 +214,10 @@ def edit_recipe(recipe_id):
                 return redirect(url_for('recipe_routes.edit_recipe', recipe_id=recipe_id))
 
             image_url = recipe.image_url
+            old_image_url = recipe.image_url  # Store old image URL for cleanup later
             if image:
                 try:
-                    # Delete old image if it exists and we're uploading a new one
-                    if recipe.image_url:
-                        delete_image(recipe.image_url)
-                    
+                    # Upload new image first
                     image_url = upload_image(image)
                     flash("Image updated successfully", "success")
                 except ValueError as e:
@@ -228,6 +226,11 @@ def edit_recipe(recipe_id):
 
             try:
                 update_recipe(recipe, data, form_ingredients, form_instructions, image_url)  # Ensure data is a dict
+                
+                # Only delete old image after successful database update
+                if image and old_image_url and old_image_url != image_url:
+                    delete_image(old_image_url)
+                    logger.info(f"Deleted old image: {old_image_url}")
                 
                 # Recalculate nutrition after recipe update
                 try:
