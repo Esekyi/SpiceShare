@@ -11,5 +11,5 @@ class Subscriber(db.Model):
         db.DateTime, default=datetime.now(timezone.utc))
     is_active = db.Column(db.Boolean, default=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Subscriber {self.email}>'
