@@ -17,5 +17,5 @@ class Comment(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Comment {self.text}>'
