@@ -6,13 +6,15 @@ import os
 from werkzeug.utils import secure_filename
 from PIL import Image
 import logging
+from typing import Optional
+from werkzeug.datastructures import FileStorage
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)  # logging level to DEBUG
 
 
 
-def upload_image_to_s3(image, folder='recipes'):
+def upload_image_to_s3(image: FileStorage, folder: str = 'recipes') -> str:
 	"""Upload image to S3 bucket and retrieve the given image URL"""
 
 	aws_access_key_id = current_app.config['S3_ACCESS_KEY_ID']
@@ -60,7 +62,7 @@ def upload_image_to_s3(image, folder='recipes'):
 		raise ValueError(f"An unexpected error occurred: {e}")
 
 
-def delete_image_from_s3(image_filename, folder='recipes'):
+def delete_image_from_s3(image_filename: str, folder: str = 'recipes') -> bool:
 	"""
     Deletes an image from the S3 bucket.
 
@@ -106,13 +108,13 @@ def delete_image_from_s3(image_filename, folder='recipes'):
 # LOCAL IMAGE UPLOAD FUNCTIONS
 # ===============================
 
-def allowed_file(filename):
+def allowed_file(filename: str) -> bool:
 	"""Check if the uploaded file has an allowed extension"""
 	allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
-def upload_image_locally(image, folder='recipe_images'):
+def upload_image_locally(image: FileStorage, folder: str = 'recipe_images') -> str:
 	"""
 	Upload image to local filesystem
 	
@@ -154,7 +156,7 @@ def upload_image_locally(image, folder='recipe_images'):
 		raise ValueError(f"Failed to upload image: {e}")
 
 
-def optimize_image(file_path, max_width=1200, max_height=800, quality=85):
+def optimize_image(file_path: str, max_width: int = 1200, max_height: int = 800, quality: int = 85) -> None:
 	"""
 	Optimize uploaded image by resizing and compressing
 	
@@ -186,7 +188,7 @@ def optimize_image(file_path, max_width=1200, max_height=800, quality=85):
 		# Don't raise error - optimization is not critical
 
 
-def delete_image_locally(image_filename, folder='recipe_images'):
+def delete_image_locally(image_filename: str, folder: str = 'recipe_images') -> bool:
 	"""
 	Delete image from local filesystem
 	
@@ -215,7 +217,7 @@ def delete_image_locally(image_filename, folder='recipe_images'):
 # UNIFIED IMAGE UPLOAD FUNCTIONS
 # ===============================
 
-def upload_image(image, folder='recipes'):
+def upload_image(image: FileStorage, folder: str = 'recipes') -> str:
 	"""
 	Unified image upload function that uses either local or S3 storage
 	based on the UPLOAD_METHOD configuration
@@ -232,7 +234,7 @@ def upload_image(image, folder='recipes'):
 		return upload_image_locally(image, 'recipe_images')
 
 
-def delete_image(image_filename, folder='recipes'):
+def delete_image(image_filename: str, folder: str = 'recipes') -> bool:
 	"""
 	Unified image deletion function that uses either local or S3 storage
 	based on the UPLOAD_METHOD configuration
@@ -249,7 +251,7 @@ def delete_image(image_filename, folder='recipes'):
 		return delete_image_locally(image_filename, 'recipe_images')
 
 
-def get_image_url(image_filename):
+def get_image_url(image_filename: Optional[str]) -> Optional[str]:
 	"""
 	Generate the appropriate URL for an image based on upload method
 	

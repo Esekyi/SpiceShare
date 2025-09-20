@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime, timezone
 import uuid
+from typing import Dict, Any
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -41,10 +42,10 @@ class NutritionInfo(db.Model):
     # Relationship
     recipe = db.relationship('Recipe', backref=db.backref('nutrition_info', uselist=False))
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<NutritionInfo for Recipe {self.recipe_id}: {self.calories_per_serving} cal/serving>'
     
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Convert nutrition info to dictionary for API responses"""
         return {
             'id': str(self.id),
@@ -65,7 +66,7 @@ class NutritionInfo(db.Model):
             'calculated_at': self.calculated_at.isoformat() if self.calculated_at else None
         }
     
-    def get_nutrition_facts(self):
+    def get_nutrition_facts(self) -> Dict[str, float]:
         """Get formatted nutrition facts for display"""
         return {
             'calories': round(self.calories_per_serving) if self.calories_per_serving else 0,
@@ -77,7 +78,7 @@ class NutritionInfo(db.Model):
             'sugar': round(self.sugar_g, 1) if self.sugar_g else 0
         }
     
-    def is_stale(self, max_age_days=7):
+    def is_stale(self, max_age_days: int = 7) -> bool:
         """Check if nutrition data is stale and needs recalculation"""
         if not self.calculated_at:
             return True
@@ -93,7 +94,7 @@ class NutritionInfo(db.Model):
         age = now - calculated_at
         return age.days > max_age_days
     
-    def confidence_level(self):
+    def confidence_level(self) -> str:
         """Return human-readable confidence level"""
         if not self.ai_confidence_score:
             return "Unknown"
