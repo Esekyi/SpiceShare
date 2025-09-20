@@ -11,10 +11,9 @@ from app.models.instruction import Instruction
 from app.models.category import Category
 from app.models.user import User
 from app.services.nutrition_service import NutritionService
-import uuid
 from datetime import datetime, timezone
 
-def create_sample_recipes():
+def create_sample_recipes() -> None:
     """Create sample recipes with realistic ingredients and instructions"""
     
     app = create_app()
