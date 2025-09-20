@@ -2,6 +2,7 @@ from app import db
 from datetime import datetime, timezone
 import uuid
 import logging
+from typing import List, Dict, Optional, Any
 from sqlalchemy.dialects.postgresql import UUID
 
 logger = logging.getLogger(__name__)
@@ -38,10 +39,10 @@ class Recipe(db.Model):
     instructions = db.relationship(
         'Instruction', backref='recipes', cascade='all, delete-orphan', lazy='dynamic')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Recipe {self.title}>'
 
-    def increment_view_count(self):
+    def increment_view_count(self) -> None:
         """Increment the view count without updating the updated_at timestamp."""
         if self.view_count is None:  # Check if view_count is None
             self.view_count = 0      # Initialize to 0 if None
@@ -49,7 +50,7 @@ class Recipe(db.Model):
         db.session.commit()
         # No commit or onupdate manipulation here
     
-    def needs_nutrition_calculation(self):
+    def needs_nutrition_calculation(self) -> bool:
         """Check if recipe needs nutrition calculation"""
         if not self.nutrition_calculated:
             return True
@@ -65,7 +66,7 @@ class Recipe(db.Model):
             
         return False
     
-    def get_ingredients_for_ai(self):
+    def get_ingredients_for_ai(self) -> List[Dict[str, Any]]:
         """Format ingredients for AI nutrition calculation"""
         ingredients_list = []
         for ingredient in self.ingredients:
@@ -76,12 +77,12 @@ class Recipe(db.Model):
             })
         return ingredients_list
     
-    def mark_nutrition_calculated(self):
+    def mark_nutrition_calculated(self) -> None:
         """Mark recipe as having calculated nutrition"""
         self.nutrition_calculated = True
         self.nutrition_last_updated = datetime.now(timezone.utc)
     
-    def reset_nutrition_calculation(self):
+    def reset_nutrition_calculation(self) -> None:
         """Reset nutrition calculation status"""
         self.nutrition_calculated = False
         self.nutrition_last_updated = None
