@@ -20,5 +20,5 @@ class User(db.Model, UserMixin):
     recipes = db.relationship('Recipe', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<User {self.username}>'
