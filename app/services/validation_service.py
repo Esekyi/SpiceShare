@@ -1,9 +1,11 @@
-def validate_recipe_data(data):
+from typing import List, Dict, Any
+
+def validate_recipe_data(data: Dict[str, Any]) -> List[str]:
 	"""validate_recipe_data(data)
 	validate recipe data as they come in
 	and display errors if not available
 	"""
-	errors = []
+	errors: List[str] = []
 	if not data.get('title'):
 		errors.append('Title is required.')
 	if not data.get('description'):
