@@ -1,16 +1,17 @@
-from flask import Blueprint, render_template, flash, send_from_directory, current_app, abort
+from flask import Blueprint, render_template, send_from_directory, current_app, abort, Response
 import os
+from typing import Union
 
 main = Blueprint('main_routes', __name__)
 
 
 @main.route('/', methods=['GET'], strict_slashes=False)
-def index():
+def index() -> str:
 	return render_template('index.html')
 
 
 @main.route('/uploads/recipe_images/<filename>')
-def uploaded_file(filename):
+def uploaded_file(filename: str) -> Union[Response, None]:
 	"""Serve uploaded recipe images from local storage"""
 	try:
 		upload_method = current_app.config.get('UPLOAD_METHOD', 'local')

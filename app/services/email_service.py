@@ -4,13 +4,14 @@ from flask import render_template, current_app, url_for, request
 from flask_limiter import Limiter
 from threading import Thread
 import smtplib
+from typing import List, Dict, Any, Optional
 
 # Rate Limiter setup (10 emails per minute)
 limiter = Limiter(key_func=lambda: request.remote_addr,
                   default_limits=["10 per minute"])
 
 # Function to send email asynchronously
-def send_async_email(app, msg):
+def send_async_email(app, msg: Message) -> None:
 	"""Function to send email asynchronously"""
 	with app.app_context():
 		try:
@@ -21,7 +22,7 @@ def send_async_email(app, msg):
 			print(f"Failed to send email: {str(e)}")
 
 # Function to send email with threading
-def send_email(subject, recipients, template):
+def send_email(subject: str, recipients: List[str], template: str) -> bool:
 	"""Function to send email with threading"""
 	app = current_app._get_current_object()
 	msg = Message(subject, recipients=recipients)
@@ -39,7 +40,7 @@ def send_email(subject, recipients, template):
 
 # Rate-limited function to send newsletter subscription email
 @limiter.limit("5 per minute")
-def subscribed_to_newsletter(email):
+def subscribed_to_newsletter(email: str) -> bool:
 	"""Send newsletter subscription email"""
 	html_body = render_template(
 		'email/subscribed_email.html',
@@ -53,7 +54,7 @@ def subscribed_to_newsletter(email):
 
 
 @limiter.limit("5 per minute")
-def send_newsletter_email(user, recipe, recipe_link, unsubscribe_link=None):
+def send_newsletter_email(user, recipe, recipe_link: str, unsubscribe_link: Optional[str] = None) -> bool:
 	"""Send newsletter email"""
 	unsubscribe_url = url_for('email.unsubscribe', email=user.email, _external=True)
 	html_body = render_template(
@@ -72,7 +73,7 @@ def send_newsletter_email(user, recipe, recipe_link, unsubscribe_link=None):
 
 
 @limiter.limit("5 per minute")
-def send_custom_email(subject, recipients, template_name, context):
+def send_custom_email(subject: str, recipients: List[str], template_name: str, context: Dict[str, Any]) -> bool:
 	"""
 	a flexible function that can be used to send any type of email by specifying a template and providing the necessary context.
 	Rate-limited function to send newsletter email

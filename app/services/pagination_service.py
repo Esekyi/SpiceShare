@@ -1,6 +1,7 @@
 from math import ceil
+from typing import List, Dict, Any
 
-def paginate(items, page, per_page):
+def paginate(items: List[Any], page: int, per_page: int) -> Dict[str, Any]:
 	"""Paginate a list of items.
 
     Args:

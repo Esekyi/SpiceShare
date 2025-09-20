@@ -1,5 +1,5 @@
 """User services routes"""
-from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template
+from flask import Blueprint, jsonify, request, flash, redirect, url_for, render_template, Response
 from app import db
 from app.services.user_services import get_all_users, delete_user, get_user_by_id, update_user_details, create_user, get_user_by_email, get_user_by_username, is_valid_username
 from app.services.recipe_service import get_recipes_by_user
@@ -7,16 +7,18 @@ from app.services.recaptcha_service import verify_recaptcha
 from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
 from app.services.email_service import send_custom_email
+from typing import Union, List, Dict, Any
+import uuid
 
 # user routes blueprint
 bp = Blueprint('user_routes', __name__)
 
 @bp.route('/users', methods=['GET'], strict_slashes=False)
 @login_required
-def list_users():
+def list_users() -> Response:
     """get all users in db"""
     users = get_all_users()
-    user_list = []
+    user_list: List[Dict[str, Any]] = []
     for user in users:
         user_list.append({
             "id": user.id,
@@ -27,7 +29,7 @@ def list_users():
 
 
 @bp.route('/register', methods=['GET', 'POST'], strict_slashes=False)
-def register():
+def register() -> Union[str, Response]:
 
     if request.method == 'POST':
 
@@ -91,7 +93,7 @@ def register():
 
 @bp.route('/user/<uuid:user_id>/edit', methods=["POST"], strict_slashes=False)
 @login_required
-def edit_user(user_id):
+def edit_user(user_id: uuid.UUID) -> Response:
     """Update user details by id (only handles POST requests)"""
     user = get_user_by_id(str(user_id))
 
@@ -123,7 +125,7 @@ def edit_user(user_id):
 
 @bp.route('/user/<uuid:user_id>/delete', methods=['POST'], strict_slashes=False)
 @login_required
-def delete_user_profile(user_id):
+def delete_user_profile(user_id: uuid.UUID) -> Response:
 
     user = get_user_by_id(user_id)
     if user and user.id == current_user.id:
@@ -137,7 +139,7 @@ def delete_user_profile(user_id):
 
 @bp.route('/user/<uuid:user_id>/profile', methods=['GET'], strict_slashes=False)
 @login_required
-def user_profile(user_id):
+def user_profile(user_id: uuid.UUID) -> Union[str, Response]:
     user = get_user_by_id(user_id)
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 9))

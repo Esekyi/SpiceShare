@@ -6,9 +6,10 @@ from app.models.instruction import Instruction
 from app.models.user import User
 from app.services.pagination_service import paginate
 from sqlalchemy import or_
+from typing import Dict, Any
 
 
-def search_recipes(query, page=1, per_page=10):
+def search_recipes(query: str, page: int = 1, per_page: int = 10) -> Dict[str, Any]:
 	"""
     Search for recipes based on a query string.
     The query can match recipe names, ingredients, author or categories.

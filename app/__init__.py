@@ -8,6 +8,11 @@ from uuid import UUID
 import os
 from build import build_css
 from flask_mail import Mail
+from typing import Optional, Any, TYPE_CHECKING
+
+# Only import User for type checking, not at runtime
+if TYPE_CHECKING:
+    from app.models.user import User
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -20,7 +25,7 @@ migrate = Migrate()
 csrf = CSRFProtect()
 mail = Mail()
 
-def create_app():
+def create_app() -> Flask:
 	# if not os.environ.get('FLASK_DEBUG'):
 	# 	build_css()
 
@@ -62,7 +67,7 @@ def create_app():
 	return app
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: str) -> Optional['User']:
 	from app.models.user import User
 	try:
 		user_uuid = UUID(user_id)
@@ -71,31 +76,31 @@ def load_user(user_id):
 		return None
 	
 
-def register_error_handlers(app):
+def register_error_handlers(app: Flask) -> None:
     """Registers custom error pages."""
 
     @app.errorhandler(404)
-    def not_found_error(error):
+    def not_found_error(error: Any) -> tuple:
         return render_template('error.html', error_code=404, error_message="Page Not Found"), 404
 	
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(error: Any) -> tuple:
         return render_template('error.html', error_code=500, error_message="Internal Server Error"), 500
 
     @app.errorhandler(403)
-    def forbidden_error(error):
+    def forbidden_error(error: Any) -> tuple:
         return render_template('error.html', error_code=403, error_message="Forbidden"), 403
 
     @app.errorhandler(400)
-    def forbidden_error(error):
+    def bad_request_error(error: Any) -> tuple:
         return render_template('error.html', error_code=400, error_message="Bad Request"), 400
 
 
-def register_template_filters(app):
+def register_template_filters(app: Flask) -> None:
 	"""Register custom Jinja2 template filters."""
 	
 	@app.template_filter('recipe_image_url')
-	def recipe_image_url_filter(image_filename):
+	def recipe_image_url_filter(image_filename: str) -> str:
 		"""Generate the appropriate URL for a recipe image based on upload method."""
 		from app.services.image_service import get_image_url
 		return get_image_url(image_filename)

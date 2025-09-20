@@ -1,16 +1,16 @@
-# Adjust the import based on your project structure
-from app.models.recipe import Recipe
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from app.models.instruction import Instruction
 from app import db
 import random
 from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional, Tuple, Union
+import uuid
 
 from app.services.pagination_service import paginate
 
 
-def create_recipe(data, user_id, ingredients, instructions, send_url):
+def create_recipe(data: Dict[str, Any], user_id: uuid.UUID, ingredients: List[Union[str, Dict[str, Any]]], instructions: List[str], send_url: Optional[str]) -> Recipe:
     """
     Create a new recipe and save it to the database.
     
@@ -77,7 +77,7 @@ def create_recipe(data, user_id, ingredients, instructions, send_url):
         raise Exception(f"Failed to create recipe: {str(e)}")
 
 
-def get_all_recipes(page=1, per_page=3):
+def get_all_recipes(page: int = 1, per_page: int = 3) -> Dict[str, Any]:
     """Get all recipes with pagination.
 
     Args:
@@ -92,7 +92,7 @@ def get_all_recipes(page=1, per_page=3):
     return paginate(recipes, page, per_page)
 
 
-def update_recipe(recipe, data, ingredients, instructions, image_url):
+def update_recipe(recipe: Recipe, data: Dict[str, Any], ingredients: List[Union[str, Dict[str, Any]]], instructions: List[str], image_url: Optional[str]) -> None:
     """Update an existing recipe with new data."""
     try:
         recipe.title = data.get('title', recipe.title)
@@ -177,12 +177,12 @@ def update_recipe(recipe, data, ingredients, instructions, image_url):
         raise Exception(f"Failed to create recipe: {str(e)}")
 
 
-def get_recipe_by_id(recipe_id):
+def get_recipe_by_id(recipe_id: uuid.UUID) -> Recipe:
     """Fetch a recipe by its ID without updating the updated_at timestamp."""
     return Recipe.query.get_or_404(recipe_id)
 
 
-def get_recipe_with_details(recipe_id):
+def get_recipe_with_details(recipe_id: uuid.UUID) -> Tuple[Optional[Recipe], Optional[List[Ingredient]], Optional[List[Instruction]]]:
     """Fetch a recipe along with its ingredients and instructions."""
     recipe = Recipe.query.get(recipe_id)
     if recipe:
@@ -193,13 +193,13 @@ def get_recipe_with_details(recipe_id):
     return None, None, None
 
 
-def delete_recipe(recipe):
+def delete_recipe(recipe: Recipe) -> None:
     """Delete a recipe from the database."""
     db.session.delete(recipe)
     db.session.commit()
 
 
-def get_most_viewed_recipes(limit=5):
+def get_most_viewed_recipes(limit: int = 5) -> List[Recipe]:
     """
     Check through Recipe table and get the most viewed recipes - 
     sorted from descending on the view count field. limit of recipes needed
@@ -207,7 +207,7 @@ def get_most_viewed_recipes(limit=5):
     return Recipe.query.order_by(Recipe.view_count.desc()).limit(limit).all()
 
 
-def get_random_recipes_with_images(limit=3):
+def get_random_recipes_with_images(limit: int = 3) -> List[Recipe]:
     recipes_with_image = Recipe.query.filter(
         Recipe.image_url != None, Recipe.image_url != '').all()
     if len(recipes_with_image) > limit:
@@ -215,12 +215,12 @@ def get_random_recipes_with_images(limit=3):
     return recipes_with_image
 
 
-def get_recipes_by_user(user_id, page=1, per_page=9):
+def get_recipes_by_user(user_id: uuid.UUID, page: int = 1, per_page: int = 9) -> Dict[str, Any]:
     """Fetch recipes created by a specific user with pagination."""
     recipes = Recipe.query.filter_by(user_id=user_id).all()
     return paginate(recipes, page, per_page)
 
-def get_quick_and_easy_recipe(limit=5):
+def get_quick_and_easy_recipe(limit: int = 5) -> List[Recipe]:
     """Fetch quick and easy recipes based on prep and cook time."""
     return Recipe.query.filter(
         (Recipe.prep_time + Recipe.cook_time) <= 30  # Total time should be 30 minutes or less

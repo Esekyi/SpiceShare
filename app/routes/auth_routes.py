@@ -1,15 +1,16 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, Response
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
 from app.models.user import User
 from app.services.recaptcha_service import verify_recaptcha
+from typing import Union
 
 """Route for basic authentication"""
 
 auth_bp = Blueprint('auth', __name__)
 
 
-def is_safe_url(target):
+def is_safe_url(target: str) -> bool:
 	"""Check if the target URL is safe for redirection."""
 	from urllib.parse import urlparse, urljoin
 	# Allow relative URLs
@@ -20,7 +21,7 @@ def is_safe_url(target):
 	return safe
 
 @auth_bp.route('/login', methods=['GET', 'POST'], strict_slashes=False)
-def login():
+def login() -> Union[str, Response]:
 	"""Login authentication handler"""
 
 
@@ -59,7 +60,7 @@ def login():
 
 @auth_bp.route('/logout')
 @login_required
-def logout():
+def logout() -> Response:
 	"""logout handler"""
 	logout_user()
 	flash("You've been logged out succesfully!",'success')

@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime, timezone
 import uuid
+from typing import Dict, Any
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -18,10 +19,10 @@ class Ingredient(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Ingredient {self.name}>'
     
-    def formatted_quantity(self):
+    def formatted_quantity(self) -> str:
         """Return formatted quantity with unit for display"""
         if self.quantity and self.unit:
             return f"{self.quantity} {self.unit}"
@@ -29,7 +30,7 @@ class Ingredient(db.Model):
             return str(self.quantity)
         return ""
     
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Convert ingredient to dictionary for API responses"""
         return {
             'id': str(self.id),
